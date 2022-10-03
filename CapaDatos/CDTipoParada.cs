@@ -15,10 +15,10 @@ namespace CapaDatos
         SqlDataReader leer;
         DataTable tabla = new DataTable();
         SqlCommand comando = new SqlCommand();
+        string CCentro = "431103";//Constante para asignar el molino
 
 
-        
-            public DataTable MostrarCentros()
+        public DataTable MostrarCentros()
         {
             try
 

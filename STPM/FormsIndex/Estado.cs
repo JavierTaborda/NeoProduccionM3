@@ -20,9 +20,9 @@ namespace STPM.FormsIndex
     public partial class Estado : Form
     {
         int intArdu = 0;
-        string centro="431103";//El centro debe obtenerse automaticamente 
-         // int ParadaM; Variable para registrar la parada despues de un minuto
-        
+        string centro = "431103";//El centro debe obtenerse automaticamente 
+                                 // int ParadaM; Variable para registrar la parada despues de un minuto
+
         //Calcular los tiemposen conjunto a los timers
         Stopwatch CronometroTT = new Stopwatch();
         Stopwatch CronometroTP = new Stopwatch();
@@ -34,9 +34,9 @@ namespace STPM.FormsIndex
         int changeimage = 0;//variable para el switch que cambia las imagenes
         //string puertoSeleccionar; variables para mostrar los puertos disponibles
         string datoArdu;//variable para guaradar el dato enviado por el arduino
-        double min=0; //Variable para verificar la duración minima de la parada. 
-        double mintp = 0, segtp=0;//mintp espera un minuto de estabilidad, y segtp evita que se inicie el cronometro tt y tp al mismo tiempo
-        
+        double min = 0; //Variable para verificar la duración minima de la parada. 
+        double mintp = 0, segtp = 0;//mintp espera un minuto de estabilidad, y segtp evita que se inicie el cronometro tt y tp al mismo tiempo
+
         bool reset = false, inicio = true; //Para reiniciar el cronometro de espera (Last), e iniciar turno
 
         SerialPort serialPort = new SerialPort();
@@ -53,45 +53,45 @@ namespace STPM.FormsIndex
             }
             spPuertoSerie.DataReceived += new SerialDataReceivedEventHandler(spPuertoSerie_DataReceived);*/
 
-            
-                serialPort.BaudRate = 9600;
-                serialPort.PortName = "COM6";
 
-                // Creamos el evento
-                serialPort.DataReceived += new SerialDataReceivedEventHandler(SerialPort_DataReceived);
+            serialPort.BaudRate = 9600;
+            serialPort.PortName = "COM1";
 
-                // Controlamos que el puerto indicado esté operativo
-                try
-                {
+            // Creamos el evento
+            serialPort.DataReceived += new SerialDataReceivedEventHandler(SerialPort_DataReceived);
+
+            // Controlamos que el puerto indicado esté operativo
+            try
+            {
                 // Abrimos el puerto serie
                 serialPort.Close();
                 serialPort.Open();
-                }
-                catch
-                {
+            }
+            catch
+            {
 
-                }
+            }
 
         }
 
         //---------------------------------------------------Conectarse al puerto sin combo box----------------------------------------
-        
-            // Nueva instancia de la clase
-            
 
-            private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
-            {
-                // Obtenemos el puerto serie que lanza el evento
-                SerialPort currentSerialPort = (SerialPort)sender;
-
-                // Leemos el dato recibido del puerto serie
-                datoArdu = serialPort.ReadLine();//try
-                intArdu = Convert.ToInt32(datoArdu);
-            }
-       
+        // Nueva instancia de la clase
 
 
-        
+        private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            // Obtenemos el puerto serie que lanza el evento
+            SerialPort currentSerialPort = (SerialPort)sender;
+
+            // Leemos el dato recibido del puerto serie
+            datoArdu = serialPort.ReadLine();//try
+            intArdu = Convert.ToInt32(datoArdu);
+        }
+
+
+
+
 
         //---------------------------------------------------------------------------------------------------------
 
@@ -106,13 +106,13 @@ namespace STPM.FormsIndex
             lblcentro.Text = CNBatchPro.centrop;//No aplica para molino ya esta predefinido
             lblproduc.Text = CNBatchPro.orden;
             lblproducto.Text = CNBatchPro.producto;
-            if(String.IsNullOrEmpty(CNBatchPro.producidos))
+            if (String.IsNullOrEmpty(CNBatchPro.producidos))
             {
                 lblR.Text = "0 KG";
             }
             else
             {
-                lblR.Text = Math.Round(Convert.ToDecimal(CNBatchPro.producidos))+" KG";
+                lblR.Text = Math.Round(Convert.ToDecimal(CNBatchPro.producidos)) + " KG";
             }
 
             if (String.IsNullOrEmpty(CNBatchPro.rechazos))
@@ -122,27 +122,28 @@ namespace STPM.FormsIndex
             else
             {
                 lblDV.Text = Math.Round(Convert.ToDecimal(CNBatchPro.rechazos)) + " KG";
-                
+
             }
-            if (lblid.Text!="")
+            if (lblid.Text != "")
             {
                 CNOEE oee = new CNOEE();
                 oee.TiempoTurno();
                 oee.DatosOEE();
                 oee.CalculoOEE(lblid.Text);
 
-                lblren.Text = Math.Round((CNOEE.Rendimiento.Sum()*100)).ToString() + "%";
-                lblcal.Text = Math.Round((CNOEE.Calidad*100)).ToString() +"%";
-                lbldis.Text = Math.Round((CNOEE.Disponibilidad*100)).ToString() + "%";
-                lbloee.Text= Math.Round((CNOEE.OEE*100)).ToString() + "%";
+                lblren.Text = Math.Round((CNOEE.Rendimiento.Sum() * 100)).ToString() + "%";
+                lblcal.Text = Math.Round((CNOEE.Calidad * 100)).ToString() + "%";
+                lbldis.Text = Math.Round((CNOEE.Disponibilidad * 100)).ToString() + "%";
+                lbloee.Text = Math.Round((CNOEE.OEE * 100)).ToString() + "%";
 
 
             }
-           
+
 
         }
-      
 
+
+        //Imagen a mostrar
         private void Estado_Load(object sender, EventArgs e)
         {
             //Buscar la imagen correspondiente al picturebox
@@ -241,7 +242,7 @@ namespace STPM.FormsIndex
             ///Mostrar el tiempo trabajado
             lbltiempo.Text = h + ":" + m + ":" + s;
             //Variable para verificar la duración minima de la parada.
-            min = tls.Seconds;
+            min = tls.Seconds; // moide el tiempo a espera de estabilización para contar tiempo efectivo.
         }
         //End Eventos de los timers
 
@@ -263,30 +264,29 @@ namespace STPM.FormsIndex
 
         private void btnOn_Click(object sender, EventArgs e)
         {
-            
-               try
-             {
 
-                 //spPuertoSerie.WriteLine("a");
-                 serialPort.WriteLine("a");
-             }
-             catch (Exception)
-             {
+            /* try
+         {
 
-                 MessageBox.Show("No se puede conectar al puerto");
-             }
-            /*
-             try
-               {
-                   if (!spPuertoSerie.IsOpen)
-                   { spPuertoSerie.Open(); }
+             serialPort.WriteLine("a");
+        }
+        catch (Exception)
+        {
 
-                   // MessageBox.Show("El puerto se abrió");
-               }
-               catch (Exception ex)
-               {
-                   MessageBox.Show("Error: " + ex, "No hay ningun puerto disponible");
-               }*/
+            MessageBox.Show("No se puede conectar al puerto");
+        }
+
+         try
+           {
+               if (!spPuertoSerie.IsOpen)
+               { spPuertoSerie.Open(); }
+
+               // MessageBox.Show("El puerto se abrió");
+           }
+           catch (Exception ex)
+           {
+               MessageBox.Show("Error: " + ex, "No hay ningun puerto disponible");
+           }*/
 
 
             // lbltt.Text = "00:00:00";
@@ -294,12 +294,12 @@ namespace STPM.FormsIndex
 
             try//por si no hay conexion
             {
-                    //spPuertoSerie.WriteLine("a");
+                //spPuertoSerie.WriteLine("a");
 
-               // serialPort.WriteLine("a");
+                // serialPort.WriteLine("a");
                 lblabierto.Text = "TURNO ABIERTO";
                 lblcerrado.Text = "-";
-            
+
                 Turno();
 
                 CronometroTP.Reset(); CronometroTT.Reset();// CronometroLast.Reset(); 
@@ -307,7 +307,7 @@ namespace STPM.FormsIndex
                 cboxpuertos.Enabled = false;
                 btnselec.Enabled = true;
 
-                 DatosDelBatch();//Cargar datos de batch
+                DatosDelBatch();//Cargar datos de batch
                 InsertarBatch();//Insertar los datos al abrir turno 
                 GuardarTiempo();//Guardar tiempos
                 lblhora.Text = DateTime.Now.ToString("HH:mm:ss ");
@@ -315,10 +315,10 @@ namespace STPM.FormsIndex
                 //Seleccionar turno
             }
             catch
-           {
-              MessageBox.Show("Error al iniciar el turno, intente nuevamente. Si el problema persiste de click en salir y reabra el programa en unos minutos.");
+            {
+                MessageBox.Show("Error al iniciar el turno, intente nuevamente. Si el problema persiste de click en salir y reabra el programa en unos minutos.");
             }
-           
+
             if (lblid.Text != "")
             {
                 btnOff.Enabled = true;
@@ -327,13 +327,15 @@ namespace STPM.FormsIndex
                 timerDBatch.Enabled = true;
                 timerDBatch.Start();
             }
-           
+
+
+
         }
         /// <summary>
         /// seleccionar turno
         public void Turno()
         {
-            string turno="";
+            string turno = "";
             int valfe = int.Parse(DateTime.Now.ToString("HHmmss"));
             if (valfe >= 50000 && valfe < 180000)
             {
@@ -363,8 +365,8 @@ namespace STPM.FormsIndex
         {
             CNBatchPro b = new CNBatchPro();
             lblid.Text = b.InsertarTurno();
-            lbabiertos.Text= b.TurnosAbiertos();
-           
+            lbabiertos.Text = b.TurnosAbiertos();
+
         }
         //Actualizar el tiempo trabajado y perdido 
         private void timerT_Tick(object sender, EventArgs e)
@@ -381,7 +383,7 @@ namespace STPM.FormsIndex
         public void GuardarTiempo()
         {
             //MessageBox.Show("hOLA");
-           CNBatchPro t = new CNBatchPro();
+            CNBatchPro t = new CNBatchPro();
             t.Tiempo(int.Parse(lblid.Text), lbturno.Text, lbabiertos.Text);
 
         }
@@ -397,32 +399,32 @@ namespace STPM.FormsIndex
 
         private void btnOff_Click(object sender, EventArgs e)
         {
-           
+
             if (lblabierto.Text == "TURNO ABIERTO")
             {
                 DialogResult result = MessageBox.Show("¿Seguro que desea cerrar turno?", "Notificación", MessageBoxButtons.YesNoCancel);
-                
+
                 if (result == DialogResult.Yes)
                 {
                     try
                     {
 
                         //spPuertoSerie
-                           //serialPort.WriteLine("b");
+                        //serialPort.WriteLine("b");
                         //spPuertoSerie
-                            serialPort.Close();
+                        serialPort.Close();
 
                         //CerrarTurno();
 
-                    if (CronometroTP.IsRunning)
-                    {
-                        EstadoParadas.FinalizarParada();
-                        CerrarTurno();
-                    }
-                    else
-                    {
-                        CerrarTurno();
-                    }
+                        if (CronometroTP.IsRunning)
+                        {
+                            EstadoParadas.FinalizarParada();
+                            CerrarTurno();
+                        }
+                        else
+                        {
+                            CerrarTurno();
+                        }
                         //End Establecer Conexion con el puerto serial
                         lblcerrado.Text = "TURNO CERRADO";
                         lblabierto.Text = "-";
@@ -430,26 +432,26 @@ namespace STPM.FormsIndex
                         CronometroTP.Reset(); CronometroTT.Reset(); CronometroLast.Reset(); timertp.Enabled = false; timertt.Enabled = false;// timerlast.Enabled = false;CronometroLast.Reset();
                         btnOn.Enabled = true;
                         btnOff.Enabled = false;
-                       Form Cierre = new Cierre(lblid.Text);
+                        Form Cierre = new Cierre(lblid.Text);
                         Cierre.Show();
                     }
                     catch
-                    {   
+                    {
                         MessageBox.Show("Ocurrió un error de conexión, Intente de nuevo. ");
                     }
-                 
-                   
-                    
-                       
 
 
-                   
+
+
+
+
+
                 }
 
             }
             else
             {
-             
+
                 MessageBox.Show("No puede salir con un turno en curso", "Advertencia");
             }
             //Establecer Conexion con el puerto serial
@@ -462,43 +464,33 @@ namespace STPM.FormsIndex
             btnOn.Enabled = true;
         }
 
-        /* private void button2_Click(object sender, EventArgs e)
-         {
-             if (btnPrueba.Text == "On")
-             {
-                 Probar(1);
-                 btnPrueba.Text = "Off";
-                label4.Text = "1";
-             }
-             else { Probar(0); btnPrueba.Text = "On"; label4.Text = "0"; }
-         }*/
         //Tiempo Se coloca este codigo dentro del timer para que se ejecute en ese lapso d tiempo
 
         private void timer1_Tick(object sender, EventArgs e)
         {
             //Cerrar turno aoutomat6icamente 
 
-       /* }
-        private void button1_Click(object sender, EventArgs e)
-        {
+            /* }
+             private void button1_Click(object sender, EventArgs e)
+             {
 
-            if (button1.Text == "On")
-            {
-                Probar(1);
-                button1.Text = "Off";
-                label4.Text = "1";
-            }
-            else { Probar(0); button1.Text = "On"; label4.Text = "0"; }
-        } public void Probar(int p) {  
+                 if (button1.Text == "On")
+                 {
+                     Probar(1);
+                     button1.Text = "Off";
+                     label4.Text = "1";
+                 }
+                 else { Probar(0); button1.Text = "On"; label4.Text = "0"; }
+             } public void Probar(int p) {  
 
-           intArdu = p;*/
+                intArdu = p;*/
 
-        //------------------------------------------------------------------------------------------------------------------------------------------
-       
-             int valhora = int.Parse(DateTime.Now.ToString("HHmmss"));
+            //------------------------------------------------------------------------------------------------------------------------------------------
+
+            int valhora = int.Parse(DateTime.Now.ToString("HHmmss"));
 
             //Invertido a partir de 22/06/2022: >0
-            if (intArdu >0 && lblabierto.Text == "TURNO ABIERTO")
+            if (intArdu>0 && lblabierto.Text == "TURNO ABIERTO")
             {
 
                 if (CronometroLast.IsRunning & CronometroTP.IsRunning & reset == true)
@@ -560,7 +552,7 @@ namespace STPM.FormsIndex
                     }
 
 
-                }/**/
+                }
 
 
 

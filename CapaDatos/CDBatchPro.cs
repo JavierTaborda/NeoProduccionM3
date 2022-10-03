@@ -27,7 +27,7 @@ namespace CapaDatos
             bool paradaturno=false;
             double dura=0;
            // string r, dv, version= "M32022.07.08";
-            string r, dv, version= "M32022.09.28";
+            string r, dv, version= "M32022.09.30";
 
             try
             {
@@ -78,12 +78,44 @@ namespace CapaDatos
                 comando.Connection = Conexion.AbrirConex();
                 if (paradaturno == false)
                 {
-                    comando.CommandText = " update Pro.ParBatch set PBEsta=1 where BPIdBatchP=(Select  B.IdBatchPro from Pro.ParBatch P JOIN Mae.BatchPro B ON P.BPIdBatchP = B.IdBatchPro Where B.BPCenMaq='" + CCentro + "' and P.PBEsta=0);	update Mae.BatchPro set BPEsta = 1 where BPEsta = 0 and BPCenMaq='" + CCentro + "'; INSERT INTO Mae.BatchPro ( Mae.BatchPro.BPFePro, Mae.BatchPro.BPHoraIni, Mae.BatchPro.BPOrdPro, Mae.BatchPro.BPCenMaq, Mae.BatchPro.BPTurno, Mae.BatchPro.BPFicOpe,Mae.BatchPro.BPProdu, Mae.BatchPro.BPRecha, Mae.BatchPro.BPActivo,Mae.BatchPro.BPEsta,Mae.BatchPro.BPVers) values('" + fecha + "','" + HoraI + "','" + Orden + "','" + centro + "','" + turno + "','" + Operador + "',"+r+","+dv+",1,0,'"+version+ "'); declare @id2 int; select @id2 = (select Max(IdBatchPro) from Mae.BatchPro where BPEsta = 0 and BPCenMaq='"+ CCentro + "') INSERT INTO Pro.ParRenCal(BPIdBatchP, ECodEqu, TPCodPar, PRCCausa) values(@id2, 'OFIC-239 ', '001001', 'Rendimiento');";
+                    comando.CommandText = @" update Pro.ParBatch set PBEsta=1 where  
+                                            BPIdBatchP=(Select  B.IdBatchPro from Pro.ParBatch P JOIN Mae.BatchPro B ON P.BPIdBatchP = B.IdBatchPro 
+                                            Where B.BPCenMaq='" + CCentro + "' and P.PBEsta=0);	" +
+                                            "update Mae.BatchPro set BPEsta = 1 where BPEsta = 0 and BPCenMaq='" + CCentro + "'; " +
+                                            "INSERT INTO Mae.BatchPro ( Mae.BatchPro.BPFePro, Mae.BatchPro.BPHoraIni, Mae.BatchPro.BPOrdPro, Mae.BatchPro.BPCenMaq, Mae.BatchPro.BPTurno," +
+                                            " Mae.BatchPro.BPFicOpe,Mae.BatchPro.BPProdu, Mae.BatchPro.BPRecha, Mae.BatchPro.BPActivo,Mae.BatchPro.BPEsta,Mae.BatchPro.BPVers)" +
+                                            " values('" + fecha + "','" + HoraI + "','" + Orden + "','" + centro + "','" + turno + "','" + Operador + "',"+r+","+dv+",1,0,'"+version+ "'); " +
+                                            "declare @id2 int; select @id2 = (select Max(IdBatchPro) from Mae.BatchPro where BPEsta = 0 and BPCenMaq='"+ CCentro + "')" +
+                                            " INSERT INTO Pro.ParRenCal(BPIdBatchP, ECodEqu, TPCodPar, PRCCausa) values(@id2, 'OFIC-237 ', '001001', 'Rendimiento');";
 
                 }
                 else
                 {
-                comando.CommandText = " update Pro.ParBatch set PBEsta=1 where BPIdBatchP=(Select  B.IdBatchPro from Pro.ParBatch P JOIN Mae.BatchPro B ON P.BPIdBatchP = B.IdBatchPro Where B.BPCenMaq='" + CCentro + "' and P.PBEsta=0);	update Mae.BatchPro set BPEsta = 1 where BPEsta=0 and BPCenMaq='" + CCentro + "'; declare @fecha date ='" + fecha + "'; declare @turno varchar (20)='" + turno + "'; declare @fdate date; declare @trno varchar (20); declare @cod varchar (10); declare @iduno int; select @iduno= (select Max(IdBatchPro) from Mae.BatchPro); select @fdate= (select BPFePro from Mae.BatchPro where IdBatchPro=@iduno); select @trno= (select BPTurno from Mae.BatchPro where IdBatchPro=@iduno); select @cod=(select top 1 PBHorI from Pro.ParBatch where TPCodPar='018078' and BPIdBatchP=@iduno) INSERT INTO Mae.BatchPro ( Mae.BatchPro.BPFePro, Mae.BatchPro.BPHoraIni, Mae.BatchPro.BPOrdPro, Mae.BatchPro.BPCenMaq, Mae.BatchPro.BPTurno, Mae.BatchPro.BPFicOpe,Mae.BatchPro.BPProdu, Mae.BatchPro.BPRecha,Mae.BatchPro.BPActivo, Mae.BatchPro.BPEsta, Mae.BatchPro.BPVers) values(@fecha,'" + HoraI + "','" + Orden + "','" + centro + "',@turno,'" + Operador + "'," + r + "," + dv + ",1,0,'" + version + "'); declare @id2 int; select @id2= (select Max(IdBatchPro) from Mae.BatchPro where BPEsta=0 and BPCenMaq='" + CCentro + "') IF (@cod='06:00:00'or @cod='18:00:00' or @cod is null and @fdate=@fecha and @turno=@trno) print 'hola'; Else INSERT INTO Pro.ParBatch (BPIdBatchP,ECodEqu, TPCodPar, PBHorI, PBHorF,PBDura, PBDet, PBEsta) values( @id2,'OFIC-239 ','018078','" + hrturno + "','" + HoraI + "'," + dur + ",'Tiempo de perdido por inicio/cierre del turno',1)INSERT INTO Pro.ParRenCal(BPIdBatchP, ECodEqu, TPCodPar, PRCCausa) values(@id2, 'OFIC-239 ', '001001', 'Rendimiento');";
+                comando.CommandText = @" update Pro.ParBatch set PBEsta=1 where BPIdBatchP=
+                                       (Select  B.IdBatchPro from Pro.ParBatch P JOIN Mae.BatchPro B ON P.BPIdBatchP 
+                                        = B.IdBatchPro Where B.BPCenMaq='" + CCentro + "' and P.PBEsta=0);" +
+                                        "	update Mae.BatchPro set BPEsta = 1 where BPEsta=0 and " +
+                                        "BPCenMaq='" + CCentro + "'; declare @fecha date ='" + fecha + "';" +
+                                        " declare @turno varchar (20)='" + turno + "'; " +
+                                        "declare @fdate date; " +
+                                        "declare @trno varchar (20); " +
+                                        "declare @cod varchar (10);" +
+                                        " declare @iduno int; " +
+                                        "select @iduno= (select Max(IdBatchPro) from Mae.BatchPro);" +
+                                        " select @fdate= (select BPFePro from Mae.BatchPro where IdBatchPro=@iduno); " +
+                                        "select @trno= (select BPTurno from Mae.BatchPro where IdBatchPro=@iduno); " +
+                                        "select @cod=(select top 1 PBHorI from Pro.ParBatch where TPCodPar='018078' " +
+                                        "and BPIdBatchP=@iduno)" +
+                                        " INSERT INTO Mae.BatchPro ( Mae.BatchPro.BPFePro, Mae.BatchPro.BPHoraIni, Mae.BatchPro.BPOrdPro, " +
+                                        "Mae.BatchPro.BPCenMaq, Mae.BatchPro.BPTurno, Mae.BatchPro.BPFicOpe,Mae.BatchPro.BPProdu," +
+                                        " Mae.BatchPro.BPRecha,Mae.BatchPro.BPActivo, Mae.BatchPro.BPEsta, Mae.BatchPro.BPVers)" +
+                                        " values(@fecha,'" + HoraI + "','" + Orden + "','" + centro + "',@turno,'" + Operador + "'," + r + "," + dv + ",1,0,'" + version + "'); " +
+                                        "declare @id2 int; select @id2= (select Max(IdBatchPro) from Mae.BatchPro where BPEsta=0 and BPCenMaq='" + CCentro + "') " +
+                                        "IF (@cod='06:00:00'or @cod='18:00:00' or @cod is null and @fdate=@fecha and @turno=@trno)" +
+                                        " print 'hola';" +
+                                        " Else INSERT INTO Pro.ParBatch (BPIdBatchP,ECodEqu, TPCodPar, PBHorI, PBHorF,PBDura, PBDet, PBEsta)" +
+                                        " values( @id2,'OFIC-239 ','018078','" + hrturno + "','" + HoraI + "'," + dur + ",'Tiempo de perdido por inicio/cierre del turno',1)" +
+                                        "INSERT INTO Pro.ParRenCal(BPIdBatchP, ECodEqu, TPCodPar, PRCCausa) values(@id2, 'OFIC-237 ', '001001', 'Rendimiento');";
 
 
                 }
@@ -101,7 +133,7 @@ namespace CapaDatos
 
                 }
             }
-            catch //(Exception ex)
+            catch (Exception ex)
             {
                 
             }
@@ -147,7 +179,28 @@ namespace CapaDatos
             try
             {
                 comando.Connection = Conexion.AbrirConex();
-                comando.CommandText = "declare @r float =" + r + " declare @dv float=" + dv + " declare @Orden varchar (50)='" + orden + "' declare @idbatch int = " + id + " declare @dturno float  = " + dr + " declare @tt float declare @tp float declare @agregar float 	=" + agregar + " if (select count(*) from Pro.ParBatch where BPIdBatchP = @idbatch)>0 IF (@agregar)>0.0 select @tp = (select SUM(PBDura)  from Pro.ParBatch where BPIdBatchP = @idbatch)+@agregar; ELSE select @tp = (select SUM(PBDura)  from Pro.ParBatch where BPIdBatchP = @idbatch); Else IF (@agregar)>0.0 select @tp = @agregar ELSE select @tp = 0; if (@dturno - @tp) >1  select @tt =(@dturno - @tp) else    select @tt = 0; if (select COUNT(*) from Pro.ParBatch where BPIdBatchP = @idbatch)  > 0 AND(select TOP 1 PBDura from Pro.ParBatch where BPIdBatchP = @idbatch) is null update Mae.BatchPro set BPTT = 0,BPTP = @tt, BPPar = (select COUNT(*) from Pro.ParBatch where BPIdBatchP = @idbatch), BPOrdPro=@Orden, BPProdu=@r,BPRecha=@dv where IdBatchPro = @idbatch; else update Mae.BatchPro set BPTT = @tt,BPTP = @tp, BPPar = (select COUNT(*) from Pro.ParBatch where BPIdBatchP = @idbatch),BPOrdPro=@Orden, BPProdu=@r,BPRecha=@dv where IdBatchPro = @idbatch;";
+                comando.CommandText = @"declare @r float =" + r + " " +
+                                        "declare @dv float=" + dv + " " +
+                                        "declare @Orden varchar (50)='" + orden + "' " +
+                                        "declare @idbatch int = " + id + " " +
+                                        "declare @dturno float  = " + dr + " " +
+                                        "declare @tt float " +
+                                        "declare @tp float " +
+                                        "declare @agregar float 	=" + agregar + " " +
+                                        "if (select count(*) from Pro.ParBatch where BPIdBatchP = @idbatch)>0 " +
+                                        "IF (@agregar)>0.0 " +
+                                        "select @tp = (select SUM(PBDura)  from Pro.ParBatch where BPIdBatchP = @idbatch)+@agregar;" +
+                                        " ELSE select @tp = (select SUM(PBDura)  from Pro.ParBatch where BPIdBatchP = @idbatch); " +
+                                        "Else IF (@agregar)>0.0 select @tp = @agregar ELSE select @tp = 0; if (@dturno - @tp) >1  " +
+                                        "select @tt =(@dturno - @tp) " +
+                                        "else    select @tt = 0; " +
+                                        "if (select COUNT(*) from Pro.ParBatch where BPIdBatchP = @idbatch)  > 0 " +
+                                        "AND(select TOP 1 PBDura from Pro.ParBatch where BPIdBatchP = @idbatch) is null " +
+                                        "update Mae.BatchPro set BPTT = 0,BPTP = @tt, BPPar = (select COUNT(*) from Pro.ParBatch where BPIdBatchP = @idbatch), " +
+                                        "BPOrdPro=@Orden, BPProdu=@r,BPRecha=@dv where IdBatchPro = @idbatch;" +
+                                        " else update Mae.BatchPro set BPTT = @tt,BPTP = @tp," +
+                                        " BPPar = (select COUNT(*) from Pro.ParBatch where BPIdBatchP = @idbatch),BPOrdPro=@Orden, " +
+                                        "BPProdu=@r,BPRecha=@dv where IdBatchPro = @idbatch;";
                 comando.CommandType = CommandType.Text;
                 comando.ExecuteNonQuery();
                 Conexion.CerrarConex();
@@ -159,7 +212,7 @@ namespace CapaDatos
 
         }
 
-        public string TurnosA(string turno, string fecha)//Función para contar cuantos turnos se han abierto en el dia, para calcular o no el retrazo
+        public string TurnosA(string turno, string fecha)//Función para contar cuantos turnos se han abierto en el dia, para calcular o no el retraso
         {
             string turnos="";
             //Consultar turnos abiertos
@@ -256,12 +309,45 @@ namespace CapaDatos
                 comando.Connection = Conexion.AbrirConex();
                 if (paradaturno == false)
                 {
-                    comando.CommandText = "declare @r float =" + r + " declare @dv float=" + dv + " declare @ordenfinal varchar(50)='" + orden + "' declare @HF varchar(20) ='" + hf + "' declare @idbatch int =" + id + " declare @dturno float  = " + dr + " declare @tp float declare @tt float update Mae.BatchPro set BPOrdPro=@ordenfinal,BPProdu=@r,BPRecha=@dv  where IdBatchPro=@idbatch update Mae.BatchPro set BPHoraFin=@HF where IdBatchPro=@idbatch IF (select TOP 1 PBDura from Pro.ParBatch where BPIdBatchP=@idbatch) is not null select @tp = (select SUM(PBDura)  from Pro.ParBatch where BPIdBatchP=@idbatch); ELSE select @tp = 0;  if (@dturno - @tp >1) select @tt =(@dturno - @tp) else    select @tt = 0; update Mae.BatchPro set BPTT=@tt,BPTP=@tp, BPPar=(select COUNT(*) from Pro.ParBatch where BPIdBatchP=@idbatch), BPProdu=@r,BPRecha=@dv,BPEsta=1 where IdBatchPro=@idbatch";
+                         comando.CommandText = @"declare @r float =" + r + " " +
+                        "declare @dv float=" + dv + " " +
+                        "declare @ordenfinal varchar(50)='" + orden + "' " +
+                        "declare @HF varchar(20) ='" + hf + "' " +
+                        "declare @idbatch int =" + id + " " +
+                        "declare @dturno float  = " + dr + " " +
+                        "declare @tp float " +
+                        "declare @tt float " +
+                        "update Mae.BatchPro set BPOrdPro=@ordenfinal,BPProdu=@r,BPRecha=@dv  where IdBatchPro=@idbatch " +
+                        "update Mae.BatchPro set BPHoraFin=@HF where IdBatchPro=@idbatch " +
+                        "IF (select TOP 1 PBDura from Pro.ParBatch where BPIdBatchP=@idbatch) is not null " +
+                        "select @tp = (select SUM(PBDura)  from Pro.ParBatch where BPIdBatchP=@idbatch);" +
+                        " ELSE select @tp = 0;  " +
+                        "if (@dturno - @tp >1) select @tt =(@dturno - @tp) " +
+                        "else    select @tt = 0; " +
+                        "update Mae.BatchPro set BPTT=@tt,BPTP=@tp, " +
+                        "BPPar=(select COUNT(*) from Pro.ParBatch where BPIdBatchP=@idbatch), " +
+                        "BPProdu=@r,BPRecha=@dv,BPEsta=1 where IdBatchPro=@idbatch";
 
                 }
                 else
                 {
-                    comando.CommandText = "declare @r float =" + r + " declare @dv float=" + dv + " declare @ordenfinal varchar(50)='" + orden + "' declare @HF varchar(20) ='" + hf + "' declare @idbatch int =" + id + " declare @dturno float  = " + dr + " declare @tp float declare @tt float  INSERT INTO Pro.ParBatch (BPIdBatchP,ECodEqu, TPCodPar, PBHorI, PBHorF,PBDura, PBDet, PBEsta) values( @idbatch,'OFIC-239 ','018078','" + hf + "','" + hrturno + "'," + durparada + ",'Tiempo de perdido por inicio/cierre del turno',1); update Mae.BatchPro set BPOrdPro=@ordenfinal,BPProdu=@r,BPRecha=@dv  where IdBatchPro=@idbatch update Mae.BatchPro set BPHoraFin=@HF where IdBatchPro=@idbatch IF (select TOP 1 PBDura from Pro.ParBatch where BPIdBatchP=@idbatch) is not null select @tp = (select SUM(PBDura)  from Pro.ParBatch where BPIdBatchP=@idbatch); ELSE select @tp = 0;  if (@dturno - @tp >1) select @tt =(@dturno - @tp) else    select @tt = 0; update Mae.BatchPro set BPTT=@tt,BPTP=@tp, BPPar=(select COUNT(*) from Pro.ParBatch where BPIdBatchP=@idbatch), BPProdu=@r,BPRecha=@dv,BPEsta=1 where IdBatchPro=@idbatch; ";
+                        comando.CommandText = @"declare @r float =" + r + " " +
+                        "declare @dv float=" + dv + " " +
+                        "declare @ordenfinal varchar(50)='" + orden + "' " +
+                        "declare @HF varchar(20) ='" + hf + "' " +
+                        "declare @idbatch int =" + id + " " +
+                        "declare @dturno float  = " + dr + " " +
+                        "declare @tp float declare @tt float  " +
+                        "INSERT INTO Pro.ParBatch (BPIdBatchP,ECodEqu, TPCodPar, PBHorI, PBHorF,PBDura, PBDet, PBEsta) " +
+                        "values( @idbatch,'OFIC-237 ','018078','" + hf + "','" + hrturno + "'," + durparada + ",'Tiempo de perdido por inicio/cierre del turno',1); " +
+                        "update Mae.BatchPro set BPOrdPro=@ordenfinal,BPProdu=@r,BPRecha=@dv  where IdBatchPro=@idbatch" +
+                        " update Mae.BatchPro set BPHoraFin=@HF where IdBatchPro=@idbatch " +
+                        "IF (select TOP 1 PBDura from Pro.ParBatch where BPIdBatchP=@idbatch) is not null " +
+                        "select @tp = (select SUM(PBDura)  from Pro.ParBatch where BPIdBatchP=@idbatch); " +
+                        "ELSE select @tp = 0;  if (@dturno - @tp >1) select @tt =(@dturno - @tp) " +
+                        "else    select @tt = 0; update Mae.BatchPro set BPTT=@tt,BPTP=@tp," +
+                        " BPPar=(select COUNT(*) from Pro.ParBatch where BPIdBatchP=@idbatch), " +
+                        "BPProdu=@r,BPRecha=@dv,BPEsta=1 where IdBatchPro=@idbatch; ";
 
                 }
                 comando.CommandType = CommandType.Text;

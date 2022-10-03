@@ -18,6 +18,7 @@ namespace CapaDatos
         DataTable tabla2 = new DataTable();//Mostrar Paradas desde Formulario turnos
         DataTable tabla3 = new DataTable();
         SqlCommand comando = new SqlCommand();
+        string CCentro = "431103";//Constante para asignar el molino
 
         public DataTable MostrarParBatch(int id) 
         {
@@ -107,8 +108,14 @@ namespace CapaDatos
         {
             try
             {
+                
                 comando.Connection = Conexion.AbrirConex(); 
-                comando.CommandText = "Update Pro.ParBatch Set PBEsta=1 Where IdParBatch=(SELECT MAX(IdParBatch) FROM Pro.ParBatch Where PBEsta=0); INSERT INTO Pro.ParBatch (BPIdBatchP,ECodEqu, TPCodPar, PBHorI, PBDet, PBEsta) values( " + idbatch+",'"+eqp+"','" + cod + "','" + h1+ "','"+det+"'," +est+ "); update Mae.BatchPro set BPActivo=0 where IdBatchPro = "+idbatch;
+                comando.CommandText = @"Update Pro.ParBatch Set PBEsta=1 Where IdParBatch=
+                                    (SELECT MAX(IdParBatch) FROM Pro.ParBatch, Mae.BatchPro Where 
+                                    PBEsta=0  and BatchPro.IdBatchPro = ParBatch.BPIdBatchP AND ((BatchPro.BPCenMaq='"+ CCentro + "')));" +
+                                    " INSERT INTO Pro.ParBatch (BPIdBatchP,ECodEqu, TPCodPar, PBHorI, PBDet, PBEsta)" +
+                                    " values( " + idbatch+",'"+eqp+"','" + cod + "','" + h1+ "','"+det+"'," +est+ ");" +
+                                    " update Mae.BatchPro set BPActivo=0 where IdBatchPro = "+idbatch;
                 comando.CommandType = CommandType.Text;
                 comando.ExecuteNonQuery();
                 Conexion.CerrarConex();
@@ -158,7 +165,15 @@ namespace CapaDatos
             {
                 comando.Connection = Conexion.AbrirConex();
             //comando.CommandText = "Update Pro.ParBatch Set PBHorF='" + h2 + "', PBDura="+dr+ ", PBEsta=1 Where IdParBatch=(SELECT MAX(IdParBatch) FROM Pro.ParBatch Where PBEsta=0)";
-                comando.CommandText = "update Mae.BatchPro set BPActivo=1 where IdBatchPro = (SELECT MAX(IdBatchPro) FROM Mae.BatchPro Where BPEsta=0);    declare @HoraF varchar (20)= '" + h2+"'; declare @dura float ="+dr+ "; If @dura<2 BEGIN Update Pro.ParBatch Set PBHorF=@HoraF, PBDura=@dura, ECodEqu='855-278', TPCodPar = '018076',PBDet='Parada Autómatica', PBEsta=1 Where IdParBatch=(SELECT MAX(IdParBatch) FROM Pro.ParBatch Where PBEsta=0); END Else BEGIN Update Pro.ParBatch Set PBHorF=@HoraF, PBDura=@dura, PBEsta=1 Where IdParBatch=(SELECT MAX(IdParBatch) FROM Pro.ParBatch Where PBEsta=0); END";
+                comando.CommandText = @"update Mae.BatchPro set BPActivo=1 where 
+                                        IdBatchPro = (SELECT MAX(IdBatchPro) FROM Mae.BatchPro Where BPEsta=0 and BPCenMaq='" + CCentro + "' );  " +
+                                        " declare @HoraF varchar (20)= '" + h2+"'; declare @dura float ="+dr+ "; " +
+                                        "If @dura<2 " +
+                                        "BEGIN Update Pro.ParBatch Set PBHorF=@HoraF, PBDura=@dura," +
+                                        "ECodEqu='855-278', TPCodPar = '018076',PBDet='Parada Autómatica', " +
+                                        "PBEsta=1 Where IdParBatch=(SELECT MAX(IdParBatch) FROM Pro.ParBatch Where PBEsta=0);" +
+                                        " END Else BEGIN Update Pro.ParBatch Set PBHorF=@HoraF, PBDura=@dura, " +
+                                        "PBEsta=1 Where IdParBatch=(SELECT MAX(IdParBatch) FROM Pro.ParBatch Where PBEsta=0); END";
                 comando.CommandType = CommandType.Text;
                 comando.ExecuteNonQuery();
                 Conexion.CerrarConex();
@@ -167,7 +182,13 @@ namespace CapaDatos
             {
                 comando.Connection = Conexion.AbrirConex();
                 //comando.CommandText = "Update Pro.ParBatch Set PBHorF='" + h2 + "', PBDura="+dr+ ", PBEsta=1 Where IdParBatch=(SELECT MAX(IdParBatch) FROM Pro.ParBatch Where PBEsta=0)";
-                comando.CommandText = "update Mae.BatchPro set BPActivo=1 where IdBatchPro = (SELECT MAX(IdBatchPro) FROM Mae.BatchPro Where BPEsta=0); declare @HoraF varchar (20)= '" + h2 + "'; declare @dura float =" + dr + "; If @dura<2 BEGIN Update Pro.ParBatch Set PBHorF=@HoraF, PBDura=@dura, ECodEqu='855-278', TPCodPar = '018076',PBDet='Parada Autómatica', PBEsta=1 Where IdParBatch=(SELECT MAX(IdParBatch) FROM Pro.ParBatch Where PBEsta=0); END Else BEGIN Update Pro.ParBatch Set PBHorF=@HoraF, PBDura=@dura, PBEsta=1 Where IdParBatch=(SELECT MAX(IdParBatch) FROM Pro.ParBatch Where PBEsta=0); END";
+                comando.CommandText = @"update Mae.BatchPro set BPActivo=1 where IdBatchPro = (SELECT MAX(IdBatchPro) FROM Mae.BatchPro Where BPEsta=0 and BPCenMaq='" + CCentro + "'); " +
+                                         "declare @HoraF varchar (20)= '" + h2 + "'; declare @dura float =" + dr + "; " +
+                                        "If @dura<2 BEGIN Update Pro.ParBatch Set PBHorF=@HoraF, PBDura=@dura, " +
+                                        "ECodEqu='855-278', TPCodPar = '018076',PBDet='Parada Autómatica', PBEsta=1 " +
+                                        "Where IdParBatch=(SELECT MAX(IdParBatch) FROM Pro.ParBatch Where PBEsta=0);" +
+                                        " END Else BEGIN Update Pro.ParBatch Set PBHorF=@HoraF, PBDura=@dura, PBEsta=1 " +
+                                        "Where IdParBatch=(SELECT MAX(IdParBatch) FROM Pro.ParBatch Where PBEsta=0); END";
                 comando.CommandType = CommandType.Text;
                 comando.ExecuteNonQuery();
                 Conexion.CerrarConex();

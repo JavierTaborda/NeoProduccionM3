@@ -16,6 +16,7 @@ namespace CapaNegocio
         SqlDataReader read;
         private CDConexionSQL Conexion = new CDConexionSQL();
         private CDParadasBatch objetoCD = new CDParadasBatch();
+        string CCentro = "431103";//Constante para asignar el molino
 
         public static string HoraIn { get; set; }
         public static string HoraFn { get; set; }
@@ -121,7 +122,7 @@ namespace CapaNegocio
             {
             comando.Connection = Conexion.CerrarConex();
             comando.Connection = Conexion.AbrirConex();
-                comando.CommandText = "SELECT  PBHorI from Pro.ParBatch where  PBEsta=0;";
+                comando.CommandText = "SELECT  PBHorI from Pro.ParBatch where  PBEsta=0 and BatchPro.BPCenMaq='"+CCentro+"';";
                 read = comando.ExecuteReader();
                 if (read.Read())
                 {

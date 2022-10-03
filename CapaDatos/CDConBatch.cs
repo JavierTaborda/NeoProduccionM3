@@ -46,21 +46,21 @@ namespace CapaDatos
             return ConOpe;
         }
 
-        private SqlConnection ConCali = new SqlConnection("Data Source=DCTDTDB01; Initial Catalog =dbSisCali;User ID=vusrred;Password=");
+        private SqlConnection ConCali = new SqlConnection("Data Source=DCTDTDB01; Initial Catalog =dbSisCali;TrustServerCertificate=True;Persist Security Info=True;User ID=vusrred;Password=");
 
 
         public SqlConnection CaliAbrirConex()
         {
-            if (ConOpe.State == ConnectionState.Closed)
-                ConOpe.Open();
-            return ConOpe;
+            if (ConCali.State == ConnectionState.Closed)
+                ConCali.Open();
+            return ConCali;
         }
 
         public SqlConnection CaliCerrarConex()
         {
-            if (ConOpe.State == ConnectionState.Open)
-                ConOpe.Close();
-            return ConOpe;
+            if (ConCali.State == ConnectionState.Open)
+                ConCali.Close();
+            return ConCali;
         }
     }
 }

@@ -146,7 +146,7 @@ namespace CapaNegocio
                     {
 
                         comando.Connection = ConBatch.CaliAbrirConex();
-                        comando.CommandText = "Select AVG(PesoBase) AS 'Peso Base', AVG(Velocidad_Bob) AS 'Velocidad Reel',AVG(Ancho/39.37) AS 'Ancho 1 (metros)', AVG(Ancho1/39.37) AS 'Ancho 2 (metros)' FROM dbSisCali.dbo.tb_ana_mol_cal tb_ana_mol_cal WHERE (tb_ana_mol_cal.IdPais=1) AND (tb_ana_mol_cal.Date='"+fechacali+"') and Ancho>0 and Velocidad_Bob>0 AND (tb_ana_mol_cal.centro_mol='"+CCentro+"') AND (tb_ana_mol_cal.Orden='"+Orden[i] + "') AND (tb_ana_mol_cal.Turno='"+turnocali+"')";
+                        comando.CommandText = "Select AVG(PesoBase) AS 'Peso Base', AVG(Velocidad_Bob) AS 'Velocidad Reel',AVG(Ancho/39.37) AS 'Ancho 1 (metros)', AVG(Ancho1/39.37) AS 'Ancho 2 (metros)' FROM dbSisCali.dbo.tb_ana_mol_cal tb_ana_mol_cal WHERE (tb_ana_mol_cal.IdPais=1) AND (tb_ana_mol_cal.Date='"+fechacali+"') and Ancho>0 and Velocidad_Bob>0 AND (tb_ana_mol_cal.centro_mol='"+CCentro+"') AND (tb_ana_mol_cal.Orden='"+Orden[i]+ "') AND (tb_ana_mol_cal.Turno='"+turnocali+"')";
                         leer = comando.ExecuteReader();
                         if (leer.Read())
                         {
@@ -233,9 +233,10 @@ namespace CapaNegocio
                         }
                     }
                 }
-                catch 
+                catch (Exception ex)
                 {
                     // TODO
+                   Console.Write("Ocurrió un error de conexión, Intente de nuevo. "+ex);
                 }
             }
             catch//intentar ejecutar 
