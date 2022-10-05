@@ -458,7 +458,16 @@ namespace CapaNegocio
             }
             else
             { 
-                insren = TPRend.ToString();
+                if(TPRend < 0) 
+                {
+                    insren = (TPRend*(-1)).ToString();
+
+                }
+                else
+                {
+                    insren = TPRend.ToString();
+                }
+                
             }
 
         

@@ -491,7 +491,7 @@ namespace STPM.FormsIndex
             int valhora = int.Parse(DateTime.Now.ToString("HHmmss"));
 
             //Invertido a partir de 22/06/2022: >0
-            if (intArdu>0 && lblabierto.Text == "TURNO ABIERTO")
+            if (intArdu >0 && lblabierto.Text == "TURNO ABIERTO")
             {
 
                 if (CronometroLast.IsRunning & CronometroTP.IsRunning & reset == true)

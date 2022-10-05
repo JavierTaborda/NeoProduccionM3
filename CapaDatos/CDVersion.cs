@@ -9,9 +9,9 @@ namespace CapaDatos
     public class CDVersion
     {
     
-        public static string CCentro { get; set; } = "431103";//Variable  para asignar el molino
-        public static string version { get; set; } = "M32022.10.05"; //Control de versión en la base de datos.
-        public static string Ofic { get; set; } = "OFIC-237 "; // Ofic predeterminada del molino
+        public static string CCentro { get; set; } = "431105";//Variable  para asignar el molino
+        public static string version { get; set; } = "M52022.10.05"; //Control de versión en la base de datos.
+        public static string Ofic { get; set; } = "OFIC-239 "; // Ofic predeterminada del molino
         public static string Com { get; set; } = "COM1"; // Puerto de Comunicación Predeterminado
 
         //Equipos predeterminados
