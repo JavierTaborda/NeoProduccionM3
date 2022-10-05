@@ -19,15 +19,14 @@ namespace CapaDatos
 
         private CDConexionSQL Conexion = new CDConexionSQL();
         private CDConBatch ConBatch = new CDConBatch();
-         string CCentro = "431103";//Constante para asignar el molino
+         string CCentro = CDVersion.CCentro;//Constante para asignar el molino
 
         public string Insertar(string fecha, string HoraI,string centro, string Orden, string turno, string Operador, string rr, string ddv)
         {
             string IdBatch = "", hrturno = "06:00:00", dur = "";//hora de inicio de turno
             bool paradaturno=false;
             double dura=0;
-           // string r, dv, version= "M32022.07.08";
-            string r, dv, version= "M32022.09.30";
+            string r, dv, version= CDVersion.version;
 
             try
             {
@@ -86,7 +85,7 @@ namespace CapaDatos
                                             " Mae.BatchPro.BPFicOpe,Mae.BatchPro.BPProdu, Mae.BatchPro.BPRecha, Mae.BatchPro.BPActivo,Mae.BatchPro.BPEsta,Mae.BatchPro.BPVers)" +
                                             " values('" + fecha + "','" + HoraI + "','" + Orden + "','" + centro + "','" + turno + "','" + Operador + "',"+r+","+dv+",1,0,'"+version+ "'); " +
                                             "declare @id2 int; select @id2 = (select Max(IdBatchPro) from Mae.BatchPro where BPEsta = 0 and BPCenMaq='"+ CCentro + "')" +
-                                            " INSERT INTO Pro.ParRenCal(BPIdBatchP, ECodEqu, TPCodPar, PRCCausa) values(@id2, 'OFIC-237 ', '001001', 'Rendimiento');";
+                                            " INSERT INTO Pro.ParRenCal(BPIdBatchP, ECodEqu, TPCodPar, PRCCausa) values(@id2, '" + CDVersion.Ofic + "', '001001', 'Rendimiento');";
 
                 }
                 else
@@ -111,11 +110,10 @@ namespace CapaDatos
                                         " Mae.BatchPro.BPRecha,Mae.BatchPro.BPActivo, Mae.BatchPro.BPEsta, Mae.BatchPro.BPVers)" +
                                         " values(@fecha,'" + HoraI + "','" + Orden + "','" + centro + "',@turno,'" + Operador + "'," + r + "," + dv + ",1,0,'" + version + "'); " +
                                         "declare @id2 int; select @id2= (select Max(IdBatchPro) from Mae.BatchPro where BPEsta=0 and BPCenMaq='" + CCentro + "') " +
-                                        "IF (@cod='06:00:00'or @cod='18:00:00' or @cod is null and @fdate=@fecha and @turno=@trno)" +
-                                        " print 'hola';" +
+                                        "IF (@cod='06:00:00'or @cod='18:00:00' or @cod is null and @fdate=@fecha and @turno=@trno) print 'hola';" +
                                         " Else INSERT INTO Pro.ParBatch (BPIdBatchP,ECodEqu, TPCodPar, PBHorI, PBHorF,PBDura, PBDet, PBEsta)" +
-                                        " values( @id2,'OFIC-239 ','018078','" + hrturno + "','" + HoraI + "'," + dur + ",'Tiempo de perdido por inicio/cierre del turno',1)" +
-                                        "INSERT INTO Pro.ParRenCal(BPIdBatchP, ECodEqu, TPCodPar, PRCCausa) values(@id2, 'OFIC-237 ', '001001', 'Rendimiento');";
+                                        " values( @id2,'" + CDVersion.Ofic + "','018078','" + hrturno + "','" + HoraI + "'," + dur + ",'Tiempo de perdido por inicio/cierre del turno',1)" +
+                                        "INSERT INTO Pro.ParRenCal(BPIdBatchP, ECodEqu, TPCodPar, PRCCausa) values(@id2, '" + CDVersion.Ofic + "', '001001', 'Rendimiento');";
 
 
                 }
@@ -339,7 +337,7 @@ namespace CapaDatos
                         "declare @dturno float  = " + dr + " " +
                         "declare @tp float declare @tt float  " +
                         "INSERT INTO Pro.ParBatch (BPIdBatchP,ECodEqu, TPCodPar, PBHorI, PBHorF,PBDura, PBDet, PBEsta) " +
-                        "values( @idbatch,'OFIC-237 ','018078','" + hf + "','" + hrturno + "'," + durparada + ",'Tiempo de perdido por inicio/cierre del turno',1); " +
+                        "values( @idbatch,'" + CDVersion.Ofic + "','018078','" + hf + "','" + hrturno + "'," + durparada + ",'Tiempo de perdido por inicio/cierre del turno',1); " +
                         "update Mae.BatchPro set BPOrdPro=@ordenfinal,BPProdu=@r,BPRecha=@dv  where IdBatchPro=@idbatch" +
                         " update Mae.BatchPro set BPHoraFin=@HF where IdBatchPro=@idbatch " +
                         "IF (select TOP 1 PBDura from Pro.ParBatch where BPIdBatchP=@idbatch) is not null " +

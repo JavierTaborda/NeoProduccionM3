@@ -7,6 +7,7 @@ using System.Data;
 using System.Data.SqlClient;
 
 
+
 namespace CapaDatos
 {
     public class CDTipoParada
@@ -15,7 +16,7 @@ namespace CapaDatos
         SqlDataReader leer;
         DataTable tabla = new DataTable();
         SqlCommand comando = new SqlCommand();
-        string CCentro = "431103";//Constante para asignar el molino
+        string CCentro = CDVersion.CCentro;//Constante para asignar el molino
 
 
         public DataTable MostrarCentros()

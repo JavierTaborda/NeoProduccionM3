@@ -45,6 +45,7 @@
     <Compile Include="CDConexionSQL.cs" />
     <Compile Include="CDParadasBatch.cs" />
     <Compile Include="CDTipoParada.cs" />
+    <Compile Include="CDVersion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

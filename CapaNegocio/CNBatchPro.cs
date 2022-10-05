@@ -21,7 +21,7 @@ namespace CapaNegocio
         private CDConBatch ConBatch = new CDConBatch();
         private CDConexionSQL Conexion = new CDConexionSQL();
         string cdep, ccar;
-        const string CCentro = "431103";//Constante para asignar el molino
+        string CCentro = CDVersion.CCentro;//Constante para asignar el molino
 
         //string[] codigos;
         public static string nombre { get; set; }
@@ -133,7 +133,32 @@ namespace CapaNegocio
 
             int valfe = int.Parse(DateTime.Now.ToString("HHmmss"));
 
-            if (tipoturnos== "1er Turno")
+         
+            if (valfe >= 50000 && valfe < 170000)
+            {
+                CNBatchPro.tipoturnos = "1er Turno";
+            }
+            else
+            {
+                if (valfe >= 170000 && valfe < 235959)
+                {
+                    CNBatchPro.tipoturnos = "2do Turno";
+
+
+                }
+                else
+                {
+                    if (valfe > 000000 && valfe < 60000)
+
+                    {
+                        CNBatchPro.tipoturnos = "2do Turno";
+                    
+                      
+                    }
+                }
+            }
+
+            if (CNBatchPro.tipoturnos== "1er Turno")
             {
                 // "1er Turno"
 
@@ -142,7 +167,7 @@ namespace CapaNegocio
             }
             else
             {
-                if (tipoturnos == "2do Turno" && valfe >= 180000 && valfe < 235959)
+                if (CNBatchPro.tipoturnos == "2do Turno" && valfe >= 180000 && valfe < 235959)
                 {
                     //"2do Turno"
 
@@ -152,7 +177,7 @@ namespace CapaNegocio
                 }
                 else
                 {
-                    if (tipoturnos == "2do Turno" && valfe > 000000 && valfe < 60000)
+                    if (CNBatchPro.tipoturnos == "2do Turno" && valfe > 000000 && valfe < 60000)
 
                     {
                         //2do Turno
@@ -180,13 +205,19 @@ namespace CapaNegocio
                 //comando2.CommandText = "SELECT ITH.THORD, ITH.TPROD FROM C20A237W.VENLX835F.ITH ITH WHERE(ITH.THWRKC = 431105) AND (ITH.TTYPE = 'R ') AND(ITH.TTDTE = '" + fecha + "') ORDER BY ITH.TPROD";
                 if (tipoturnos == "1er Turno")
                 {
-                    comando2.CommandText = "SELECT ITH.THORD, ITH.TPROD FROM C20A237W.VENLX835F.ITH ITH WHERE(ITH.THWRKC = " + CCentro + " And ITH.THWRKC = " + CCentro + ") AND(ITH.TTYPE = 'R ') AND (ITH.TTDTE = '" + fecha + "')  AND(ITH.THTIME >= 55959 And ITH.THTIME <= 180000) ORDER BY ITH.TPROD";
+                    comando2.CommandText = @"SELECT ITH.THORD, ITH.TPROD FROM C20A237W.VENLX835F.ITH ITH 
+                                            WHERE(ITH.THWRKC = " + CCentro + " And ITH.THWRKC = " + CCentro + ") " +
+                                            "AND(ITH.TTYPE = 'R ') AND (ITH.TTDTE = '" + fecha + "') " +
+                                            " AND(ITH.THTIME >= 55959 And ITH.THTIME <= 180000) ORDER BY ITH.TPROD";
                 }//Obtener orden de producción en curso y el producto
                 else
                 {
                     if (tipoturnos == "2do Turno")
                     {
-                        comando2.CommandText = "SELECT ITH.THORD, ITH.TPROD FROM C20A237W.VENLX835F.ITH ITH WHERE(ITH.THWRKC = " + CCentro + ") AND(ITH.TTYPE = 'R ') AND (ITH.TTDTE = '" + fecha + "')  AND(ITH.THTIME<55959) OR (ITH.THTIME>180000) AND (ITH.TTYPE='R') AND (ITH.TTDTE='" + fecha + "') AND (ITH.THWRKC=" + CCentro + ") ORDER BY ITH.TPROD";
+                        comando2.CommandText = @"SELECT ITH.THORD, ITH.TPROD FROM C20A237W.VENLX835F.ITH ITH 
+                         WHERE(ITH.THWRKC = " + CCentro + ") AND(ITH.TTYPE = 'R ') AND (ITH.TTDTE = '" + fecha + "')  " +
+                         "AND(ITH.THTIME<55959) OR (ITH.THTIME>180000) AND (ITH.TTYPE='R') AND (ITH.TTDTE='" + fecha + "')" +
+                         " AND (ITH.THWRKC=" + CCentro + ") ORDER BY ITH.TPROD";
                     }
                 }
                 //Obtener orden de producción en curso y el producto
@@ -254,7 +285,9 @@ namespace CapaNegocio
                 {
                     // 1er Turno 
                     comando2.Connection = ConBatch.CodAbrirConex();
-                    comando2.CommandText = "SELECT Sum(ITH.TQTY) FROM C20A237W.VENLX835F.ITH ITH WHERE(ITH.TTYPE = 'R') AND (ITH.TTDTE = '" + fecha + "' ) AND (ITH.THWRKC = " + CCentro + ") AND(ITH.THTIME >= 55959 And ITH.THTIME <= 180000)";
+                    comando2.CommandText = @"SELECT Sum(ITH.TQTY) FROM C20A237W.VENLX835F.ITH ITH WHERE(ITH.TTYPE = 'R')
+                                            AND (ITH.TTDTE = '" + fecha + "' ) AND (ITH.THWRKC = " + CCentro + ") AND(ITH.THTIME >= 55959 " +
+                                            "And ITH.THTIME <= 180000)";
                     leer2 = comando2.ExecuteReader();
                     if (leer2.Read())
                     {
@@ -265,7 +298,9 @@ namespace CapaNegocio
                     }
                     //rechazos
                     comando2.Connection = ConBatch.CodAbrirConex();
-                    comando2.CommandText = "SELECT Sum(ITH.TQTY) FROM C20A237W.VENLX835F.ITH ITH WHERE(ITH.TTYPE = 'DV') AND (ITH.TTDTE = '" + fecha + "' ) AND (ITH.THWRKC = " + CCentro + ") AND(ITH.THTIME >= 55959 And ITH.THTIME <= 180000)";
+                    comando2.CommandText = @"SELECT Sum(ITH.TQTY) FROM C20A237W.VENLX835F.ITH ITH WHERE(ITH.TTYPE = 'DV')
+                                            AND (ITH.TTDTE = '" + fecha + "' ) AND (ITH.THWRKC = " + CCentro + ") " +
+                                            "AND(ITH.THTIME >= 55959 And ITH.THTIME <= 180000)";
                     leer2 = comando2.ExecuteReader();
                     if (leer2.Read())
                     {
@@ -293,7 +328,10 @@ namespace CapaNegocio
                 {
                     //sSegundo Turno
                     comando2.Connection = ConBatch.CodAbrirConex();
-                    comando2.CommandText = "SELECT Sum(ITH.TQTY) FROM C20A237W.VENLX835F.ITH ITH WHERE (ITH.THTIME<55959) AND (ITH.TTYPE='R') AND (ITH.TTDTE='" + fecha + "') AND (ITH.THWRKC=" + CCentro + ") OR (ITH.THTIME>180000) AND (ITH.TTYPE='R') AND (ITH.TTDTE='" + fecha + "') AND (ITH.THWRKC=" + CCentro + ")";
+                    comando2.CommandText = @"SELECT Sum(ITH.TQTY) FROM C20A237W.VENLX835F.ITH ITH WHERE (ITH.THTIME<55959) 
+                                            AND (ITH.TTYPE='R') AND (ITH.TTDTE='" + fecha + "') AND " +
+                                            "(ITH.THWRKC=" + CCentro + ") OR (ITH.THTIME>180000) AND (ITH.TTYPE='R') AND " +
+                                            "(ITH.TTDTE='" + fecha + "') AND (ITH.THWRKC=" + CCentro + ")";
                     leer2 = comando2.ExecuteReader();
                     if (leer2.Read())
                     {
@@ -304,7 +342,10 @@ namespace CapaNegocio
                     }
                     //rechazos
                     comando2.Connection = ConBatch.CodAbrirConex();
-                    comando2.CommandText = "SELECT Sum(ITH.TQTY) FROM C20A237W.VENLX835F.ITH ITH WHERE(ITH.THTIME < 55959) AND(ITH.TTYPE = 'DV') AND(ITH.TTDTE = '" + fecha + "') AND(ITH.THWRKC = " + CCentro + ") OR(ITH.THTIME > 180000) AND(ITH.TTYPE = 'DV') AND(ITH.TTDTE = '" + fecha + "') AND(ITH.THWRKC = " + CCentro + ")";
+                    comando2.CommandText = @"SELECT Sum(ITH.TQTY) FROM C20A237W.VENLX835F.ITH ITH WHERE(ITH.THTIME < 55959) 
+                                               AND(ITH.TTYPE = 'DV') AND(ITH.TTDTE = '" + fecha + "') AND(ITH.THWRKC = " + CCentro + ") " +
+                                               "OR(ITH.THTIME > 180000) AND(ITH.TTYPE = 'DV') AND(ITH.TTDTE = '" + fecha + "')" +
+                                               " AND(ITH.THWRKC = " + CCentro + ")";
                     leer2 = comando2.ExecuteReader();
                     if (leer2.Read())
                     {

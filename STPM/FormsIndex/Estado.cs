@@ -20,7 +20,7 @@ namespace STPM.FormsIndex
     public partial class Estado : Form
     {
         int intArdu = 0;
-        string centro = "431103";//El centro debe obtenerse automaticamente 
+        string centro = CNOEE.CCentro;//El centro debe obtenerse automaticamente 
                                  // int ParadaM; Variable para registrar la parada despues de un minuto
 
         //Calcular los tiemposen conjunto a los timers
@@ -53,9 +53,10 @@ namespace STPM.FormsIndex
             }
             spPuertoSerie.DataReceived += new SerialDataReceivedEventHandler(spPuertoSerie_DataReceived);*/
 
-
+            //COM6 //M3
+            //COM4 //M5
             serialPort.BaudRate = 9600;
-            serialPort.PortName = "COM1";
+            serialPort.PortName = "COM4";
 
             // Creamos el evento
             serialPort.DataReceived += new SerialDataReceivedEventHandler(SerialPort_DataReceived);
@@ -418,7 +419,7 @@ namespace STPM.FormsIndex
 
                         if (CronometroTP.IsRunning)
                         {
-                            EstadoParadas.FinalizarParada();
+                            EstadoParadas.FinalizarParada(int.Parse(lblid.Text));
                             CerrarTurno();
                         }
                         else
@@ -513,7 +514,7 @@ namespace STPM.FormsIndex
                         timerlast.Stop();
                         timertp.Stop();
                         CronometroLast.Reset();
-                        EstadoParadas.FinalizarParada();//Cerrar la última parada 
+                        EstadoParadas.FinalizarParada(int.Parse(lblid.Text));//Cerrar la última parada 
 
                     }
 

@@ -315,7 +315,7 @@
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button1.Font = new System.Drawing.Font("Microsoft YaHei", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button1.ForeColor = System.Drawing.Color.White;
-            this.button1.Location = new System.Drawing.Point(987, 86);
+            this.button1.Location = new System.Drawing.Point(987, 106);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(96, 39);
             this.button1.TabIndex = 3;

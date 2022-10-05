@@ -44,7 +44,6 @@
     <Compile Include="CNOEE.cs" />
     <Compile Include="CNTipoParada.cs" />
     <Compile Include="CNParadasBatch.cs" />
-    <Compile Include="CNVersion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

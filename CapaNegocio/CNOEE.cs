@@ -23,22 +23,25 @@ namespace CapaNegocio
         string tt, tp;//obtener la consulta para convertirr a double
         public static double TT { get; set; }
         public static double TP { get; set; }
-        public static  string[] codigos { get; set; }//dIVIDE LOS CODIGOS DE LOS PRODUCTOS       
-        public static  string[] Orden { get; set; }//dIVIDE LOS ORDENES DE Producción       
-        double [] kxm;//rendimiento teorico 
-        public static double [] r { get; set; }//producción de ith
-        public static double [] dv { get; set; }//Rechazos de producción
+        public static string[] codigos { get; set; }//dIVIDE LOS CODIGOS DE LOS PRODUCTOS       
+        public static string[] Orden { get; set; }//dIVIDE LOS ORDENES DE Producción       
+        double[] kxm;//rendimiento teorico 
+        public static double[] r { get; set; }//producción de ith
+        public static double[] dv { get; set; }//Rechazos de producción
         double[] porc;//porcentaje de la produccion
         double[] rreal;//rendimiento real del turno
         double[] Rend;//rendimientos individuales
-        
-        public static double [] Rendimiento { get; set; }
+
+        public static double[] Rendimiento { get; set; }
         public static double Calidad { get; set; }
         public static double Disponibilidad { get; set; }
         public static double TPRend { get; set; }
         public static double OEE { get; set; }
         public static string Turno { get; set; }
-        const string CCentro = "431103";//Constante para asignar el molino
+
+        public static string Ofic { get; set; } = CDVersion.Ofic;
+
+        public static string CCentro { get; set; } = CDVersion.CCentro;//Constante para asignar el molino
 
 
 
@@ -75,7 +78,7 @@ namespace CapaNegocio
         {
             DateTime dtime = new DateTime();
             string fecha = DateTime.Now.ToString("yyyy-MM-dd");
-            string fechacali = "", turnocali="";
+            string fechacali = "", fechacali2 = "", turnocali ="";
             bool turno=false; //false 1ero, true 2do
             try
             {
@@ -88,6 +91,7 @@ namespace CapaNegocio
 
                     fecha = DateTime.Now.ToString("yyyyMMdd");
                     fechacali = DateTime.Now.ToString("yyyyMMdd");
+                    fechacali2 = DateTime.Now.ToString("yyyy");
                     turnocali = "1";
 
 
@@ -101,6 +105,7 @@ namespace CapaNegocio
                         dtime = Convert.ToDateTime(fecha).AddDays(1);
                         fecha = dtime.ToString("yyyyMMdd");
                         fechacali = DateTime.Now.AddDays(-1).ToString("yyyyMMdd");
+                        fechacali2 = DateTime.Now.AddDays(-1).ToString("yyyy");
                         turno = true;
                         turnocali = "2";
                     }
@@ -113,7 +118,8 @@ namespace CapaNegocio
 
                             dtime = Convert.ToDateTime(fecha).AddDays(1);
                             fecha = dtime.ToString("yyyyMMdd");
-                            fechacali = DateTime.Now.AddDays(-1).ToString("yyyyMMdd");
+                            fechacali = DateTime.Now.AddDays(-1).ToString("yyyyMM");
+                            fechacali2 = DateTime.Now.AddDays(-1).ToString("yyyy");
                             turnocali = "2";
                             turno = true;
                         }
@@ -144,92 +150,165 @@ namespace CapaNegocio
 
                     for (int i = 0; i < codigos.Length - 1; i++)
                     {
+                        /*AND (tb_ana_mol_cal.Orden='"+Orden[i]+ "')*/
 
-                        comando.Connection = ConBatch.CaliAbrirConex();
-                        comando.CommandText = "Select AVG(PesoBase) AS 'Peso Base', AVG(Velocidad_Bob) AS 'Velocidad Reel',AVG(Ancho/39.37) AS 'Ancho 1 (metros)', AVG(Ancho1/39.37) AS 'Ancho 2 (metros)' FROM dbSisCali.dbo.tb_ana_mol_cal tb_ana_mol_cal WHERE (tb_ana_mol_cal.IdPais=1) AND (tb_ana_mol_cal.Date='"+fechacali+"') and Ancho>0 and Velocidad_Bob>0 AND (tb_ana_mol_cal.centro_mol='"+CCentro+"') AND (tb_ana_mol_cal.Orden='"+Orden[i]+ "') AND (tb_ana_mol_cal.Turno='"+turnocali+"')";
-                        leer = comando.ExecuteReader();
-                        if (leer.Read())
+                        try
                         {
-                            //Obtiene KG*Minutros de esta orden pesobase*velreel*ancho*(1-rollcheck)/1000
-                            kxm[i] = (Convert.ToDouble(leer.GetString(0).Replace(".", ",")) * Convert.ToDouble(leer.GetString(1).Replace(".", ",")) * ((Convert.ToDouble(leer.GetString(2).Replace(".", ","))) + (Convert.ToDouble(leer.GetString(3).Replace(".", ","))))* (1-0.07))/1000;
+                            comando.Connection = ConBatch.CaliAbrirConex();
+                            comando.CommandText = @"Select AVG(PesoBase) AS 'Peso Base', AVG(Velocidad_Bob) AS
+                                                    'Velocidad Reel',AVG(Ancho/39.37) AS 'Ancho 1 (metros)', AVG(Ancho1/39.37)
+                                                    AS 'Ancho 2 (metros)' FROM dbSisCali.dbo.tb_ana_mol_cal tb_ana_mol_cal 
+                                                    WHERE (tb_ana_mol_cal.IdPais=1) AND (tb_ana_mol_cal.Date like '" + fechacali + "%') " +
+                                                    "and Ancho>0 and Velocidad_Bob>0 AND (tb_ana_mol_cal.centro_mol='" + CCentro + "') " +
+                                                    "AND (tb_ana_mol_cal.Orden='" + Orden[i] + "')  AND (tb_ana_mol_cal.Turno='" + turnocali + "')";
+                            leer = comando.ExecuteReader();
+                            if (leer.Read())
+                            {
+                                //Obtiene KG*Minutros de esta orden pesobase*velreel*ancho*(1-rollcheck)/1000
+                                kxm[i] = (Convert.ToDouble(leer.GetValue(0)) * Convert.ToDouble(leer.GetValue(1)) * ((Convert.ToDouble(leer.GetValue(2))) + (Convert.ToDouble(leer.GetValue(3)))) * (1 - 0.07)) / 1000;
+                            }
+
+                            comando.Connection = ConBatch.CaliCerrarConex();
+                            ConBatch.CodCerrarConex();
+
                         }
-                      
-                        comando.Connection = ConBatch.CaliCerrarConex();
-                        ConBatch.CodCerrarConex();
+                           // En caso de que la busqueda de calidad sea null, se calcula comn el promedio de todas las ordenes de calidad.
+                        catch (Exception ex)
+                        {
+                            comando.Connection = ConBatch.CaliCerrarConex();
+                            ConBatch.CodCerrarConex();
+
+                            if (kxm[0] == 0)
+                            {
+                                comando.Connection = ConBatch.CaliAbrirConex();
+                                comando.CommandText = @"Select AVG(PesoBase) AS 'Peso Base', AVG(Velocidad_Bob) AS 'Velocidad Reel',
+                                                        AVG(Ancho/39.37) AS 'Ancho 1 (metros)', AVG(Ancho1/39.37) AS 'Ancho 2 (metros)'
+                                                        FROM dbSisCali.dbo.tb_ana_mol_cal tb_ana_mol_cal WHERE (tb_ana_mol_cal.IdPais=1) 
+                                                        AND (tb_ana_mol_cal.Date like '" + fechacali2 + "%') and Ancho>0 and " +
+                                                        "Velocidad_Bob>0 AND (tb_ana_mol_cal.centro_mol='" + CCentro + "') " +
+                                                        "AND (tb_ana_mol_cal.Turno='" + turnocali + "')";
+                                leer = comando.ExecuteReader();
+                                if (leer.Read())
+                                {
+                                    //Obtiene KG*Minutros de esta orden pesobase*velreel*ancho*(1-rollcheck)/1000
+                                    kxm[0] = (Convert.ToDouble(leer.GetValue(0)) * Convert.ToDouble(leer.GetValue(1)) * ((Convert.ToDouble(leer.GetValue(2))) + (Convert.ToDouble(leer.GetValue(3)))) * (1 - 0.07)) / 1000;
+                                }
+
+                                comando.Connection = ConBatch.CaliCerrarConex();
+                                ConBatch.CodCerrarConex();
+                            }
+                        }
+
                         // 1er Turno 
-
-                        if (turno == false)
+                        //Obtener Producción
+                        try
                         {
-                            comando2.Connection = ConBatch.CodAbrirConex();
-                            comando2.CommandText = "SELECT Sum(ITH.TQTY) FROM C20A237W.VENLX835F.ITH ITH WHERE(ITH.TTYPE = 'R') AND (ITH.TTDTE = '" + fecha + "' ) AND (ITH.THWRKC = " + CCentro + ") AND(ITH.THTIME >= 55959 And ITH.THTIME <= 180000) And (ITH.TPROD='" + codigos[i] + "')";
-                            leer2 = comando2.ExecuteReader();
-                            if (leer2.Read())
+                            if (turno == false)
                             {
-                                try
+                                comando2.Connection = ConBatch.CodAbrirConex();
+                                comando2.CommandText = @"SELECT Sum(ITH.TQTY) FROM C20A237W.VENLX835F.ITH ITH WHERE(ITH.TTYPE = 'R') 
+                                                    AND (ITH.TTDTE = '" + fecha + "' ) AND (ITH.THWRKC = " + CCentro + ") AND" +
+                                                        "(ITH.THTIME >= 55959 And ITH.THTIME <= 180000) And (ITH.TPROD='" + codigos[i] + "')";
+                                leer2 = comando2.ExecuteReader();
+                                if (leer2.Read())
                                 {
-                                    r[i] = Convert.ToDouble(leer2.GetValue(0));
+                                    try
+                                    {
+                                        r[i] = Convert.ToDouble(leer2.GetValue(0));
+                                    }
+                                    catch
+                                    {
+                                        r[i] = 0;
+                                    }
                                 }
-                                catch
+                                ConBatch.CodCerrarConex();
+                                comando2.Connection = ConBatch.CodAbrirConex();
+                                //comando2.CommandText = @"SELECT Sum(ITH.TQTY) FROM C20A237W.VENLX835F.ITH ITH WHERE(ITH.TTYPE = 'DV') AND
+                                //                    (ITH.TTDTE = '" + fecha + "' ) AND (ITH.THWRKC = " + CCentro + ") AND(ITH.THTIME >= 55959 " +
+                                //                        "And ITH.THTIME <= 180000) And (ITH.TPROD='" + codigos[i] + "') OR " +
+                                //                        "((ITH.TTYPE = 'R') AND" +
+                                //                        "  (ITH.TTDTE = '" + fecha + "') AND(ITH.THWRKC = " + CCentro + ") AND(ITH.THTIME >= 55959 " +
+                                //                          "And ITH.THTIME <= 180000) And (ITH.TPROD='" + codigos[i] + "') AND (ITH.TQTY<0))";
+                                
+                                comando2.CommandText = @"SELECT Sum(ITH.TQTY) FROM C20A237W.VENLX835F.ITH ITH WHERE(ITH.TTYPE = 'DV')
+                                            AND (ITH.TTDTE = '" + fecha + "' ) AND (ITH.THWRKC = " + CCentro + ") " +
+                                            "AND(ITH.THTIME >= 55959 And ITH.THTIME <= 180000) And (ITH.TPROD='" + codigos[i] + "')";
+
+                                leer2 = comando2.ExecuteReader();
+                                if (leer2.Read())
                                 {
-                                    r[i] = 0;
+                                    try
+                                    {
+                                        dv[i] = Convert.ToDouble(leer2.GetDecimal(0));
+                                        if (dv[i] < 0)
+                                        {
+                                            dv[i] = (dv[i]) * (-1);//Multiplicar por -1 ya que hay dv que se contrarrestas con ex en bpcs
+
+                                        }
+                                        ConBatch.CodCerrarConex();
+                                    }
+                                    catch
+                                    {
+                                        dv[i] = 0;
+                                    }
                                 }
                             }
-                            ConBatch.CodCerrarConex();
-                            comando2.Connection = ConBatch.CodAbrirConex();
-                            comando2.CommandText = "SELECT Sum(ITH.TQTY) FROM C20A237W.VENLX835F.ITH ITH WHERE(ITH.TTYPE = 'DV') AND (ITH.TTDTE = '" + fecha + "' ) AND (ITH.THWRKC = " + CCentro + ") AND(ITH.THTIME >= 55959 And ITH.THTIME <= 180000) And (ITH.TPROD='" + codigos[i] + "')";
-                            leer2 = comando2.ExecuteReader();
-                            if (leer2.Read())
+                            //segundo turno
+                            else
                             {
-                                try
+
+                                comando2.Connection = ConBatch.CodAbrirConex();
+                                comando2.CommandText = @" SELECT Sum(ITH.TQTY)FROM C20A237W.VENLX835F.ITH ITH WHERE(ITH.THTIME < 55959) 
+                                                   AND(ITH.TTYPE = 'R') AND(ITH.TTDTE = '" + fecha + "') AND(ITH.THWRKC = " + CCentro + ")" +
+                                                       " OR(ITH.THTIME > 180000) AND(ITH.TTYPE = 'R') AND(ITH.TTDTE = '" + fecha + "') " +
+                                                       "AND(ITH.THWRKC = " + CCentro + ") And (ITH.TPROD='" + codigos[i] + "')";
+                                leer2 = comando2.ExecuteReader();
+                                if (leer2.Read())
                                 {
-                                    dv[i] = Convert.ToDouble(leer2.GetDecimal(0));
-                                    ConBatch.CodCerrarConex();
+
+                                    r[i] = Convert.ToDouble(leer2.GetDecimal(0));
+
+
                                 }
-                                catch
+                                ConBatch.CodCerrarConex();
+
+                                comando2.Connection = ConBatch.CodAbrirConex();
+                                comando2.CommandText = @"SELECT Sum(ITH.TQTY)FROM C20A237W.VENLX835F.ITH ITH WHERE(ITH.THTIME < 55959) 
+                                                    AND(ITH.TTYPE = 'DV') AND(ITH.TTDTE = '" + fecha + "') " +
+                                                        "AND(ITH.THWRKC = " + CCentro + ") OR(ITH.THTIME > 180000) " +
+                                                        "AND(ITH.TTYPE = 'DV') AND(ITH.TTDTE = '" + fecha + "') " +
+                                                        "AND(ITH.THWRKC = " + CCentro + ") And (ITH.TPROD='" + codigos[i] + "') " +
+                                                        "OR ((ITH.THTIME < 55959) " +
+                                                        "AND(ITH.TTYPE = 'R') AND(ITH.TTDTE = '" + fecha + "') " +
+                                                        "AND(ITH.THWRKC = " + CCentro + ") OR(ITH.THTIME > 180000) " +
+                                                        "AND(ITH.TTYPE = 'R') AND(ITH.TTDTE = '" + fecha + "') " +
+                                                        "AND(ITH.THWRKC = " + CCentro + ") And (ITH.TPROD='" + codigos[i] + "') AND (ITH.TQTY<0))";
+                                leer2 = comando2.ExecuteReader();
+
+
+                                if (leer2.Read())
                                 {
-                                    dv[i] = 0;
+                                    try
+                                    {
+
+                                        dv[i] = Convert.ToDouble(leer2.GetDecimal(0));
+                                        if (dv[i] < 0)
+                                        {
+                                            dv[i] = (dv[i]) * (-1);//Multiplicar por -1 ya que hay dv que se contrarrestas con ex en bpcs
+
+                                        }
+                                        ConBatch.CodCerrarConex();
+                                    }
+                                    catch
+                                    {
+                                        dv[i] = 0;
+                                    }
                                 }
                             }
                         }
-                        //segundo turno
-                        else
+                        catch (Exception ex)
                         {
-
-                            comando2.Connection = ConBatch.CodAbrirConex();
-                            comando2.CommandText = " SELECT Sum(ITH.TQTY)FROM C20A237W.VENLX835F.ITH ITH WHERE(ITH.THTIME < 55959) AND(ITH.TTYPE = 'R') AND(ITH.TTDTE = '" + fecha + "') AND(ITH.THWRKC = " + CCentro + ") OR(ITH.THTIME > 180000) AND(ITH.TTYPE = 'R') AND(ITH.TTDTE = '" + fecha + "') AND(ITH.THWRKC = " + CCentro + ") And (ITH.TPROD='" + codigos[i] + "')";
-                            leer2 = comando2.ExecuteReader();
-                            if (leer2.Read())
-                            {
-
-                                r[i] = Convert.ToDouble(leer2.GetDecimal(0));
-
-
-                            }
-                            ConBatch.CodCerrarConex();
-
-                            comando2.Connection = ConBatch.CodAbrirConex();
-                            comando2.CommandText = "SELECT Sum(ITH.TQTY)FROM C20A237W.VENLX835F.ITH ITH WHERE(ITH.THTIME < 55959) AND(ITH.TTYPE = 'DV') AND(ITH.TTDTE = '" + fecha + "') AND(ITH.THWRKC = " + CCentro + ") OR(ITH.THTIME > 180000) AND(ITH.TTYPE = 'DV') AND(ITH.TTDTE = '" + fecha + "') AND(ITH.THWRKC = " + CCentro + ") And (ITH.TPROD='" + codigos[i] + "')";
-                            leer2 = comando2.ExecuteReader();
-
-
-                            if (leer2.Read())
-                            {
-                                try
-                                {
-                                    
-                                    dv[i] = Convert.ToDouble(leer2.GetDecimal(0));
-                                    if (dv[i]<0)
-                                    {
-                                        dv[i] = (dv[i]) * (-1);//Multiplicar por -1 ya que hay dv que se contrarrestas con ex en bpcs
-                                 
-                                    }
-                                    ConBatch.CodCerrarConex();
-                                }
-                                catch
-                                {
-                                    dv[i] = 0;
-                                }
-                            }
+                            //catch del try de la produccion
                         }
                     }
                 }
@@ -283,13 +362,27 @@ namespace CapaNegocio
             //Ontemner rendimiento de cada producto
             for (int i = 0; i < codigos.Length-1; i++)
             {
-                if(rreal[i]>0)
+                if (kxm.Length > 1)
                 {
-                    Rend[i]=rreal[i]/kxm[i];
+                    if (rreal[i] > 0)
+                    {
+                        Rend[i] = rreal[i] / kxm[i];
+                    }
+                    else
+                    {
+                        Rend[i] = 0;
+                    }
                 }
                 else
                 {
-                    Rend[i] = 0;
+                    if (rreal[i] > 0)
+                    {
+                        Rend[i] = rreal[i] / kxm[0];
+                    }
+                    else
+                    {
+                        Rend[i] = 0;
+                    }
                 }
                     
             }
@@ -298,42 +391,8 @@ namespace CapaNegocio
             {
                 Rendimiento[i] = Rend[i] * porc[i];
             }
-            //Calidad
+           
 
-            /*
-            if (dv.Sum() == 0 && r.Sum()!=0)
-            {
-                Calidad = (r.Sum() / (dv.Sum() + r.Sum()));
-            }
-            else
-            {
-                if (dv.Sum() == 0 & r.Sum() > 0)
-                {
-                    Calidad = 1;
-                }
-                else
-                {
-                    Calidad = 0;
-                }
-            }
-            try
-            {
-                
-                    Calidad = (r.Sum()) / ((dv.Sum()) + (r.Sum())); 
-                
-                
-            }
-            catch
-
-            {
-                if (r.Sum() == 0 && dv.Sum() == 0)
-                {
-                    Calidad = 0;
-                }
-                else { Calidad = 0; }
-
-            }*/
-            
 
             if (dv.Sum() > 1 )
             {
@@ -347,7 +406,7 @@ namespace CapaNegocio
                 }
                 else
                 {
-                    Calidad  = ((r.Sum()) / ((dv.Sum()) + (r.Sum()))); ;
+                    Calidad  = ((r.Sum()) / ((r.Sum()) - (dv.Sum()))); ;
                 }
 
             }

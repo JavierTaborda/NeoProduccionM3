@@ -370,7 +370,7 @@ namespace STPM.FormsIndex
                 if (parada == "Cambio de Crepe")
                 {
                    
-                    equipo = "855-213 ";
+                    equipo = CNParadasBatch.Equip2;
                     cod = "018057 ";
                     
                 }
@@ -378,12 +378,13 @@ namespace STPM.FormsIndex
                 {
                     if (parada == "Limpieza Máq.")
                     {
-                        equipo = "OFIC-239 ";
+                        equipo = CNOEE.Ofic;
                         cod = "018028 ";
                     }
                     else
                     {
-                        equipo = "OFIC-239 ";
+                            //Acumulación de pasta
+                        equipo = CNOEE.Ofic;
                         cod = "018013 ";
                     }
                 }

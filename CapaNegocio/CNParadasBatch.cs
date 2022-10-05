@@ -16,8 +16,9 @@ namespace CapaNegocio
         SqlDataReader read;
         private CDConexionSQL Conexion = new CDConexionSQL();
         private CDParadasBatch objetoCD = new CDParadasBatch();
-        string CCentro = "431103";//Constante para asignar el molino
-
+        string CCentro = CDVersion.CCentro;//Constante para asignar el molino
+        public static string Equip1 { get; set; } = ""; //Parada automatica
+        public static string Equip2 { get; set; } = "855-213 "; //Cambio de Crepe
         public static string HoraIn { get; set; }
         public static string HoraFn { get; set; }
         public static string Hre { get; set; }
@@ -93,7 +94,7 @@ namespace CapaNegocio
         //Se activa cuando ocurre una parada, y registra los datos por defecto.
         public void InsertarParada(int idbatch)
         {
-            string eqp= "OFIC-237 ", sdt = "001001", deta="Sin observación";
+            string eqp= CDVersion.Ofic, sdt = "001001", deta="Sin observación";
             //_horaI = DateTime.Now.AddMinutes(-1).ToString("HH:mm:ss ");//Agregar un minuto de espera
             _horaI = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
             _estado = 0;
@@ -113,7 +114,7 @@ namespace CapaNegocio
             //objetoCD.Editar();
         }
         //Se activa cuando ocurre se reanuda la maquina sy se activa el cronometro de tiempo trabajado, y registra los datos por defecto.
-        public void FinalizarParada()
+        public void FinalizarParada(int idbatch)
         {
             string hi = "00:00:00";
             string hf = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
@@ -122,7 +123,7 @@ namespace CapaNegocio
             {
             comando.Connection = Conexion.CerrarConex();
             comando.Connection = Conexion.AbrirConex();
-                comando.CommandText = "SELECT  PBHorI from Pro.ParBatch where  PBEsta=0 and BatchPro.BPCenMaq='"+CCentro+"';";
+                comando.CommandText = "SELECT  PBHorI from Pro.ParBatch where  PBEsta=0 and Pro.ParBatch.BPIdBatchP=" + idbatch+";";
                 read = comando.ExecuteReader();
                 if (read.Read())
                 {
