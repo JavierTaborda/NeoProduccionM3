@@ -56,7 +56,7 @@ namespace STPM.FormsIndex
             //COM6 //M3
             //COM4 //M5
             serialPort.BaudRate = 9600;
-            serialPort.PortName = "COM4";
+            serialPort.PortName = "COM6";
 
             // Creamos el evento
             serialPort.DataReceived += new SerialDataReceivedEventHandler(SerialPort_DataReceived);

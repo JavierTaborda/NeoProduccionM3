@@ -108,8 +108,8 @@ namespace CapaDatos
                                         " INSERT INTO Mae.BatchPro ( Mae.BatchPro.BPFePro, Mae.BatchPro.BPHoraIni, Mae.BatchPro.BPOrdPro, " +
                                         "Mae.BatchPro.BPCenMaq, Mae.BatchPro.BPTurno, Mae.BatchPro.BPFicOpe,Mae.BatchPro.BPProdu," +
                                         " Mae.BatchPro.BPRecha,Mae.BatchPro.BPActivo, Mae.BatchPro.BPEsta, Mae.BatchPro.BPVers)" +
-                                        " values(@fecha,'" + HoraI + "','" + Orden + "','" + centro + "',@turno,'" + Operador + "'," + r + "," + dv + ",1,0,'" + version + "'); " +
-                                        "declare @id2 int; select @id2= (select Max(IdBatchPro) from Mae.BatchPro where BPEsta=0 and BPCenMaq='" + CCentro + "') " +
+                                        " values(@fecha,'" + HoraI + "','" + Orden + "','" + CDVersion.CCentro + "',@turno,'" + Operador + "'," + r + "," + dv + ",1,0,'" + version + "'); " +
+                                        "declare @id2 int; select @id2= (select Max(IdBatchPro) from Mae.BatchPro where BPEsta=0 and BPCenMaq='" + CDVersion.CCentro + "') " +
                                         "IF (@cod='06:00:00'or @cod='18:00:00' or @cod is null and @fdate=@fecha and @turno=@trno) print 'hola';" +
                                         " Else INSERT INTO Pro.ParBatch (BPIdBatchP,ECodEqu, TPCodPar, PBHorI, PBHorF,PBDura, PBDet, PBEsta)" +
                                         " values( @id2,'" + CDVersion.Ofic + "','018078','" + hrturno + "','" + HoraI + "'," + dur + ",'Tiempo de perdido por inicio/cierre del turno',1)" +
@@ -122,7 +122,7 @@ namespace CapaDatos
                 Conexion.CerrarConex();
                 //Consultar el ID
                 comando.Connection = Conexion.AbrirConex();
-                comando.CommandText = "SELECT MAX(IdBatchPro) 	from Mae.BatchPro where  BPEsta=0 and BPCenMaq='" + CCentro + "';";
+                comando.CommandText = "SELECT MAX(IdBatchPro) 	from Mae.BatchPro where  BPEsta=0 and BPCenMaq='" + CDVersion.CCentro + "';";
                 leer = comando.ExecuteReader();
                 if (leer.Read())
                 {
