@@ -56,7 +56,7 @@ namespace STPM.FormsIndex
             //COM6 //M3
             //COM4 //M5
             serialPort.BaudRate = 9600;
-            serialPort.PortName = "COM6";
+            serialPort.PortName = "COM4";
 
             // Creamos el evento
             serialPort.DataReceived += new SerialDataReceivedEventHandler(SerialPort_DataReceived);
@@ -297,7 +297,7 @@ namespace STPM.FormsIndex
             {
                 //spPuertoSerie.WriteLine("a");
 
-                // serialPort.WriteLine("a");
+                serialPort.WriteLine("a");
                 lblabierto.Text = "TURNO ABIERTO";
                 lblcerrado.Text = "-";
 
@@ -491,7 +491,7 @@ namespace STPM.FormsIndex
             int valhora = int.Parse(DateTime.Now.ToString("HHmmss"));
 
             //Invertido a partir de 22/06/2022: >0
-            if (intArdu >0 && lblabierto.Text == "TURNO ABIERTO")
+            if (intArdu <=0 && lblabierto.Text == "TURNO ABIERTO")
             {
 
                 if (CronometroLast.IsRunning & CronometroTP.IsRunning & reset == true)
@@ -561,7 +561,7 @@ namespace STPM.FormsIndex
             }
 
             
-            if (intArdu <=0 && lblabierto.Text == "TURNO ABIERTO")
+            if (intArdu >0 && lblabierto.Text == "TURNO ABIERTO")
             {
 
                 if (!CronometroLast.IsRunning)

@@ -290,10 +290,10 @@ namespace CapaDatos
                 }
 
             
-          
+          //TODO: Errror ak cerrar turno despues e horario.
                 if (turno == "2do Turno")
                 {
-                    hrturno = DateTime.Now.ToString("dd/MM/yyyy") + " 05:59:00";
+                    hrturno = DateTime.Now.AddDays(-1).ToString("dd/MM/yyyy") + " 05:59:00";
                     dura = DateTime.Parse(hrturno).Subtract(DateTime.Parse(hf)).TotalMinutes;
                     durparada = Convert.ToString(string.Format("{0:0.000}", dura)).Replace(",", ".");
                     paradaturno = true;

@@ -459,7 +459,7 @@ namespace CapaNegocio
             else
             {
 
-               //error  
+               //TODO: error  
                 if (CNBatchPro.tipoturnos == "2do Turno")
                 {
                     t = "2";

@@ -223,16 +223,16 @@ namespace CapaNegocio
                                 }
                                 ConBatch.CodCerrarConex();
                                 comando2.Connection = ConBatch.CodAbrirConex();
-                                //comando2.CommandText = @"SELECT Sum(ITH.TQTY) FROM C20A237W.VENLX835F.ITH ITH WHERE(ITH.TTYPE = 'DV') AND
-                                //                    (ITH.TTDTE = '" + fecha + "' ) AND (ITH.THWRKC = " + CCentro + ") AND(ITH.THTIME >= 55959 " +
-                                //                        "And ITH.THTIME <= 180000) And (ITH.TPROD='" + codigos[i] + "') OR " +
-                                //                        "((ITH.TTYPE = 'R') AND" +
-                                //                        "  (ITH.TTDTE = '" + fecha + "') AND(ITH.THWRKC = " + CCentro + ") AND(ITH.THTIME >= 55959 " +
-                                //                          "And ITH.THTIME <= 180000) And (ITH.TPROD='" + codigos[i] + "') AND (ITH.TQTY<0))";
-                                
-                                comando2.CommandText = @"SELECT Sum(ITH.TQTY) FROM C20A237W.VENLX835F.ITH ITH WHERE(ITH.TTYPE = 'DV')
-                                            AND (ITH.TTDTE = '" + fecha + "' ) AND (ITH.THWRKC = " + CCentro + ") " +
-                                            "AND(ITH.THTIME >= 55959 And ITH.THTIME <= 180000) And (ITH.TPROD='" + codigos[i] + "')";
+                                comando2.CommandText = @"SELECT Sum(ITH.TQTY) FROM C20A237W.VENLX835F.ITH ITH WHERE(ITH.TTYPE = 'DV') AND
+                                                    (ITH.TTDTE = '" + fecha + "' ) AND (ITH.THWRKC = " + CCentro + ") AND(ITH.THTIME >= 55959 " +
+                                                        "And ITH.THTIME <= 180000) And (ITH.TPROD='" + codigos[i] + "') OR " +
+                                                        "((ITH.TTYPE = 'R') AND" +
+                                                        "  (ITH.TTDTE = '" + fecha + "') AND(ITH.THWRKC = " + CCentro + ") AND(ITH.THTIME >= 55959 " +
+                                                          "And ITH.THTIME <= 180000) And (ITH.TPROD='" + codigos[i] + "') AND (ITH.TQTY<0))";
+
+                                //comando2.CommandText = @"SELECT Sum(ITH.TQTY) FROM C20A237W.VENLX835F.ITH ITH WHERE(ITH.TTYPE = 'DV')
+                                //            AND (ITH.TTDTE = '" + fecha + "' ) AND (ITH.THWRKC = " + CCentro + ") " +
+                                //            "AND(ITH.THTIME >= 55959 And ITH.THTIME <= 180000) And (ITH.TPROD='" + codigos[i] + "')";
 
                                 leer2 = comando2.ExecuteReader();
                                 if (leer2.Read())
@@ -460,7 +460,8 @@ namespace CapaNegocio
             { 
                 if(TPRend < 0) 
                 {
-                    insren = (TPRend*(-1)).ToString();
+                    insren = Convert.ToString(string.Format("{0:0.000}", ((TPRend * (-1)).ToString().Replace(",", "."))));
+                    
 
                 }
                 else
