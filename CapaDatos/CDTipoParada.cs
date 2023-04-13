@@ -25,7 +25,7 @@ namespace CapaDatos
 
             {
                 comando.Connection = Conexion.AbrirConex();
-                comando.CommandText = "Select * from CentroEq";
+                comando.CommandText = "Select * from CentroEq Where CECentro="+ CCentro;
                 //Procedimiento alamacenado= comando.CommandType = CommandType.StoredProcedure;
                 leer = comando.ExecuteReader();
                 tabla.Load(leer);

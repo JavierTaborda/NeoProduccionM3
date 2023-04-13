@@ -132,8 +132,9 @@ namespace CapaNegocio
             
 
             int valfe = int.Parse(DateTime.Now.ToString("HHmmss"));
+            CNBatchPro.tipoturnos = "";
 
-         
+
             if (valfe >= 50000 && valfe < 170000)
             {
                 CNBatchPro.tipoturnos = "1er Turno";
@@ -152,8 +153,8 @@ namespace CapaNegocio
 
                     {
                         CNBatchPro.tipoturnos = "2do Turno";
-                    
-                      
+
+
                     }
                 }
             }
@@ -482,7 +483,7 @@ namespace CapaNegocio
             // TimeSpan ti = TimeSpan.Parse(hi);
             //TimeSpan tf = TimeSpan.Parse(hf);
             //double dura = tf.Subtract(ti).TotalMinutes;// Obtener los minutos de diferencia entre las horas.
-            double dura = DateTime.Parse(hf).Subtract(DateTime.Parse(hi)).TotalMinutes;
+            double dura = DateTime.Parse(hcierre).Subtract(DateTime.Parse(hi)).TotalMinutes;
             string dur = Convert.ToString(string.Format("{0:0.000}", dura));// se convietrte a string en formado con tres decimales    
             objetoCD.Cerrarbatch(id,hcierre,dur,CNBatchPro.orden,CNBatchPro.producidos,CNBatchPro.rechazos, CNBatchPro.tipoturnos);
         }
@@ -491,23 +492,7 @@ namespace CapaNegocio
         public string fechaI(int id, string turno, int ta)
         {
             string hi="";
-            if (ta < 1)
-            {
-                if (CNBatchPro.tipoturnos == "1er Turno")
-                {
-                    hi = DateTime.Now.ToString("dd/MM/yyyy") + " 06:00:00";
-                }
-                else
-                {
-                    if (CNBatchPro.tipoturnos == "2do Turno")
-                    {
-                        hi = DateTime.Now.AddDays(-1).ToString("dd/MM/yyyy") + " 18:00:00";
-                    }
-                }
-            }
-
-            else
-            {
+           
                 //Consulta la hora de inicio del batch 
                 /*string hi = "00:00:00";*/
                 try
@@ -524,9 +509,20 @@ namespace CapaNegocio
                 }
                 catch (System.Exception ex)
                 {
-                     // TODO
+                    if (CNBatchPro.tipoturnos == "1er Turno")
+                    {
+                        hi = DateTime.Now.ToString("dd/MM/yyyy") + " 06:00:00";
+                    }
+                    else
+                    {
+                        if (CNBatchPro.tipoturnos == "2do Turno")
+                        {
+                            hi = DateTime.Now.AddDays(-1).ToString("dd/MM/yyyy") + " 18:00:00";
+                        }
+                    }
                 }
-            }
+               
+            
 
 
             return hi;

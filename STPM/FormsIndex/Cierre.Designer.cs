@@ -388,9 +388,9 @@
             this.label6.ForeColor = System.Drawing.Color.SeaGreen;
             this.label6.Location = new System.Drawing.Point(292, 16);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(350, 35);
+            this.label6.Size = new System.Drawing.Size(334, 35);
             this.label6.TabIndex = 0;
-            this.label6.Text = "Efectividad Total Molino 5";
+            this.label6.Text = "Efectividad Total Molino ";
             // 
             // label2
             // 

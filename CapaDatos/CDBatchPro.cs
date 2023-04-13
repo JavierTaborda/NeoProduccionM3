@@ -27,6 +27,10 @@ namespace CapaDatos
             bool paradaturno=false;
             double dura=0;
             string r, dv, version= CDVersion.version;
+            if (centro == null || centro.Length == 0)
+            {
+                centro = CDVersion.CCentro;
+            }
 
             try
             {
@@ -253,7 +257,7 @@ namespace CapaDatos
 
         public void Cerrarbatch(int id, string hf, string dur, string orden, string rr, string ddv, string turno)
         {
-            string hrturno ;
+            string hrturno="" ;
             string dr = dur.Replace(",", "."); //cambiar las comas por puntos para evitar error en la bd sql server
             string r, dv;
             bool paradaturno = false;
@@ -281,23 +285,30 @@ namespace CapaDatos
             int valhora = int.Parse(DateTime.Now.ToString("HHmmss"));
             //Obtener retraso por cierre de turno 
            
-                 hrturno = DateTime.Now.ToString("dd/MM/yyyy") + " 18:00:00"; // hora de cierre
-                if (turno== "1er Turno")
-                {
+                 
+                //if (turno== "1er Turno")
+                //{
+                if (  valhora > 160000 & valhora < 180000) { 
+                    hrturno = DateTime.Now.ToString("dd/MM/yyyy") + " 18:00:00"; // hora de cierre
                     dura = DateTime.Parse(hrturno).Subtract(DateTime.Parse(hf)).TotalMinutes;
                     durparada = Convert.ToString(string.Format("{0:0.000}", dura)).Replace(",", ".");
                     paradaturno = true;
-                }
+                    }
+                //}
 
             
           //TODO: Errror ak cerrar turno despues e horario.
-                if (turno == "2do Turno")
+                //if (turno == "2do Turno")
+                //{
+                if (valhora>40000 & valhora < 60000  )
                 {
-                    hrturno = DateTime.Now.AddDays(-1).ToString("dd/MM/yyyy") + " 05:59:00";
+                    hrturno = DateTime.Now.ToString("dd/MM/yyyy") + " 06:00:00";
+
                     dura = DateTime.Parse(hrturno).Subtract(DateTime.Parse(hf)).TotalMinutes;
                     durparada = Convert.ToString(string.Format("{0:0.000}", dura)).Replace(",", ".");
                     paradaturno = true;
                 }
+                //}
                 
             
 
@@ -342,7 +353,7 @@ namespace CapaDatos
                         " update Mae.BatchPro set BPHoraFin=@HF where IdBatchPro=@idbatch " +
                         "IF (select TOP 1 PBDura from Pro.ParBatch where BPIdBatchP=@idbatch) is not null " +
                         "select @tp = (select SUM(PBDura)  from Pro.ParBatch where BPIdBatchP=@idbatch); " +
-                        "ELSE select @tp = 0;  if (@dturno - @tp >1) select @tt =(@dturno - @tp) " +
+                        "ELSE select @tp = 0;  if (@dturno - @tp >0) select @tt =(@dturno - @tp) " +
                         "else    select @tt = 0; update Mae.BatchPro set BPTT=@tt,BPTP=@tp," +
                         " BPPar=(select COUNT(*) from Pro.ParBatch where BPIdBatchP=@idbatch), " +
                         "BPProdu=@r,BPRecha=@dv,BPEsta=1 where IdBatchPro=@idbatch; ";

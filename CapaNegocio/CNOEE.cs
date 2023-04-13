@@ -52,24 +52,24 @@ namespace CapaNegocio
         {
             try
             {
-                
-            comando.Connection = Conexion.AbrirConex();
-            comando.CommandText = "select cast( BPTT as varchar), cast(BPTP as varchar), BPTurno from Mae.BatchPro where IdBatchPro = (select MAX(IdBatchPro) from Mae.BatchPro where BPCenMaq='" + CCentro + "');";
-            leer = comando.ExecuteReader();
-            if (leer.Read())
-            {
-                tt =  leer.GetString(0);
-                tp = leer.GetString(1);
-                Turno= leer.GetString(2);
-                comando.Connection = Conexion.CerrarConex();
 
+                comando.Connection = Conexion.AbrirConex();
+                comando.CommandText = "select cast( BPTT as varchar), cast(BPTP as varchar), BPTurno from Mae.BatchPro where IdBatchPro = (select MAX(IdBatchPro) from Mae.BatchPro where BPCenMaq='" + CDVersion.CCentro + "');";
+                leer = comando.ExecuteReader();
+                if (leer.Read())
+                {
+                    tt = leer.GetString(0);
+                    tp = leer.GetString(1);
+                    Turno = leer.GetString(2);
+                    comando.Connection = Conexion.CerrarConex();
+
+                }
+                TT = Convert.ToDouble(tt.Replace(".", ","));
+                TP = Convert.ToDouble(tp.Replace(".", ","));
             }
-            TT = Convert.ToDouble(tt.Replace(".", ","));
-            TP = Convert.ToDouble(tp.Replace(".", ","));
-            }
-            catch 
+            catch
             {
-                 // TODO
+                // TODO
             }
         }
 
@@ -78,8 +78,8 @@ namespace CapaNegocio
         {
             DateTime dtime = new DateTime();
             string fecha = DateTime.Now.ToString("yyyy-MM-dd");
-            string fechacali = "", fechacali2 = "", turnocali ="";
-            bool turno=false; //false 1ero, true 2do
+            string fechacali = "", fechacali2 = "", turnocali = "";
+            bool turno = false; //false 1ero, true 2do
             try
             {
 
@@ -172,7 +172,7 @@ namespace CapaNegocio
                             ConBatch.CodCerrarConex();
 
                         }
-                           // En caso de que la busqueda de calidad sea null, se calcula comn el promedio de todas las ordenes de calidad.
+                        // En caso de que la busqueda de calidad sea null, se calcula comn el promedio de todas las ordenes de calidad.
                         catch (Exception ex)
                         {
                             comando.Connection = ConBatch.CaliCerrarConex();
@@ -315,58 +315,76 @@ namespace CapaNegocio
                 catch (Exception ex)
                 {
                     // TODO
-                   Console.Write("Ocurrió un error de conexión, Intente de nuevo. "+ex);
+                    Console.Write("Ocurrió un error de conexión, Intente de nuevo. " + ex);
                 }
             }
             catch//intentar ejecutar 
             {
                 DatosOEE();
             }
-          
+
         }
-           //double[] Rendimi;
+        //double[] Rendimi;
         public void CalculoOEE(string id)
         {
-            
+
             porc = new double[codigos.Length - 1];
             rreal = new double[codigos.Length - 1];
             Rend = new double[codigos.Length - 1];
             Rendimiento = new double[codigos.Length - 1];
             //porcentaje de la producción de cada producto
-            for (int i = 0; i < codigos.Length-1; i++)
+            for (int i = 0; i < codigos.Length - 1; i++)
             {
-               if(r[i]>0)
+                if (r[i] > 0)
                 {
-                    porc[i] =  r[i]/(r.Sum()) ;
+                    porc[i] = r[i] / (r.Sum());
                 }
-               else
+                else
                 {
                     porc[i] = 0;
                 }
-                
+
 
             }
             // obtener el rendimiento real 
-            for (int i = 0; i < codigos.Length-1; i++)
+            for (int i = 0; i < codigos.Length - 1; i++)
             {
-                if (TT>0)
+                if (TT > 0)
                 {
-                    rreal[i] = (r[i]+dv[i]) / (TT* porc[i]);
+                    rreal[i] = (r[i] + dv[i]) / (TT * porc[i]);
                 }
                 else
                 {
                     rreal[i] = 0;
                 }
-                
+
             }
+
+            //Evitar NaN
+            for (int i = 0; i < codigos.Length - 1; i++)
+            {
+                if (!Double.IsNaN(rreal[i]) || rreal[i] != null)
+                {
+                    rreal[i] = 0;
+                }
+            }
+
+
             //Ontemner rendimiento de cada producto
-            for (int i = 0; i < codigos.Length-1; i++)
+            for (int i = 0; i < codigos.Length - 1; i++)
             {
                 if (kxm.Length > 1)
                 {
                     if (rreal[i] > 0)
                     {
-                        Rend[i] = rreal[i] / kxm[i];
+                        if (kxm[i] > 0)
+                        {
+                            Rend[i] = rreal[i] / kxm[i];
+                        }
+                        else
+                        {
+                            Rend[i] = rreal[i];
+                        }
                     }
                     else
                     {
@@ -384,17 +402,17 @@ namespace CapaNegocio
                         Rend[i] = 0;
                     }
                 }
-                    
+
             }
             //Rendimiento del turno
             for (int i = 0; i < codigos.Length - 1; i++)
             {
                 Rendimiento[i] = Rend[i] * porc[i];
             }
-           
 
 
-            if (dv.Sum() > 1 )
+
+            if (dv.Sum() > 1)
             {
                 Calidad = ((r.Sum()) / ((dv.Sum()) + (r.Sum())));
             }
@@ -406,13 +424,13 @@ namespace CapaNegocio
                 }
                 else
                 {
-                    Calidad  = ((r.Sum()) / ((r.Sum()) - (dv.Sum()))); ;
+                    Calidad = ((r.Sum()) / ((r.Sum()) - (dv.Sum()))); ;
                 }
 
             }
 
             //Disponibilidad
-            if (TT>0)
+            if (TT > 0)
             {
                 Disponibilidad = (TT / (TT + TP));
             }
@@ -429,53 +447,81 @@ namespace CapaNegocio
             OEE = (Rendimiento.Sum()) * Calidad * Disponibilidad;
             InsertarOEE(id);
 
-           /*for (int i = 0; i < codigos.Length - 1; i++)
-            {
-                Rendimi[i] = Rend[i] * porc[i];
-            }*/
+            /*for (int i = 0; i < codigos.Length - 1; i++)
+             {
+                 Rendimi[i] = Rend[i] * porc[i];
+             }*/
         }
         public void InsertarOEE(string id)
         {
-            string insertar, insren, Disp,Cal, Rend;
-            if (OEE>0)
+            string insertar, insren, Disp, Cal, Rend;
+            if (OEE > 0 & OEE < 1)
             {
                 insertar = Convert.ToString(string.Format("{0:0.000}", (OEE.ToString().Replace(",", "."))));
-                Rend = Convert.ToString(string.Format("{0:0.000}", (Rendimiento.Sum().ToString().Replace(",", "."))));
-                Cal =  Calidad.ToString().Replace(",", ".");
-                Disp = Convert.ToString(string.Format("{0:0.000}", (Disponibilidad.ToString().Replace(",", "."))));
+
             }
             else
             {
                 insertar = OEE.ToString();
-                Rend = Rendimiento.Sum().ToString();
+
+            }
+            if (Calidad > 0 & Calidad < 1)
+            {
+                Cal = Convert.ToString(string.Format("{0:0.000}", (Calidad.ToString().Replace(",", "."))));
+
+
+            }
+            else
+            {
                 Cal = Calidad.ToString();
+            }
+
+            if (Disponibilidad > 0 & Disponibilidad < 1)
+            {
+
+                Disp = Convert.ToString(string.Format("{0:0.000}", (Disponibilidad.ToString().Replace(",", "."))));
+            }
+            else
+            {
                 Disp = Disponibilidad.ToString();
             }
 
-            if (TPRend > 0)
+            if (Rendimiento.Sum()>0 & Rendimiento.Sum() < 1)
             {
-                insren = Convert.ToString(string.Format("{0:0.000}",(TPRend.ToString().Replace(",", "."))));
+                Rend  = Convert.ToString(string.Format("{0:0.000}", (Rendimiento.Sum().ToString().Replace(",", "."))));
             }
             else
-            { 
-                if(TPRend < 0) 
+            {
+                Rend = Rendimiento.Sum().ToString();
+            }
+
+
+            if (TPRend > 0)
+            {
+                insren = Convert.ToString(string.Format("{0:0.000}", (TPRend.ToString().Replace(",", "."))));
+            }
+            else
+            {
+                if (TPRend < 0)
                 {
                     insren = Convert.ToString(string.Format("{0:0.000}", ((TPRend * (-1)).ToString().Replace(",", "."))));
-                    
+
 
                 }
                 else
                 {
                     insren = TPRend.ToString();
                 }
-                
+
             }
 
-        
+
             try
             {
                 comando.Connection = Conexion.AbrirConex();
-                comando.CommandText = " update Pro.ParRenCal set PRCTP=" + insren + " where BPIdBatchP=" + id + " and PRCCausa='Rendimiento'; update Mae.BatchPro set BPOEE =" + insertar + ", BPDisp="+Disp+",BPCali="+Cal+", BPRend="+Rend+" where IdBatchPro=" + id;
+                comando.CommandText = "  update Mae.BatchPro set BPOEE =" + insertar + ", BPDisp=" + Disp + ",BPCali=" + Cal + ", BPRend=" + Rend + " where IdBatchPro=" + id;
+                // comando.CommandText = " update Pro.ParRenCal set PRCTP=" + insren + " where BPIdBatchP=" + id + " and PRCCausa='Rendimiento'; update Mae.BatchPro set BPOEE =" + insertar + ", BPDisp="+Disp+",BPCali="+Cal+", BPRend="+Rend+" where IdBatchPro=" + id;
+                //Tiempo perdido por rendimiento se inserta aqui arriba
                 comando.CommandType = CommandType.Text;
                 comando.ExecuteNonQuery();
                 comando.Connection = Conexion.CerrarConex();
@@ -487,6 +533,6 @@ namespace CapaNegocio
 
 
         }
-        
-}
+
+    }
 }

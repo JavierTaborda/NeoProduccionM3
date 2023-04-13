@@ -158,7 +158,7 @@ namespace CapaDatos
             }
         }
 
-        public void Cerrar(string h2, string dur )
+        public void Cerrar(string h2, string dur, int idbatch )
         {
             string dr = dur.Replace(",", "."); //cambiar las comas por puntos para evitar error en la bd sql server
             try
@@ -171,9 +171,9 @@ namespace CapaDatos
                                         "If @dura<2 " +
                                         "BEGIN Update Pro.ParBatch Set PBHorF=@HoraF, PBDura=@dura," +
                                         "ECodEqu='"+CDVersion.Equip1+"', TPCodPar = '018076',PBDet='Parada Autómatica', " +
-                                        "PBEsta=1 Where IdParBatch=(SELECT MAX(IdParBatch) FROM Pro.ParBatch Where PBEsta=0);" +
+                                        "PBEsta=1 Where IdParBatch=(SELECT MAX(IdParBatch) FROM Pro.ParBatch Where PBEsta=0 and BPIdBatchP=" + idbatch + ");" +
                                         " END Else BEGIN Update Pro.ParBatch Set PBHorF=@HoraF, PBDura=@dura, " +
-                                        "PBEsta=1 Where IdParBatch=(SELECT MAX(IdParBatch) FROM Pro.ParBatch Where PBEsta=0); END";
+                                        "PBEsta=1 Where IdParBatch=(SELECT MAX(IdParBatch) FROM Pro.ParBatch Where PBEsta=0 and BPIdBatchP=" + idbatch + "); END";
                 comando.CommandType = CommandType.Text;
                 comando.ExecuteNonQuery();
                 Conexion.CerrarConex();
@@ -186,9 +186,9 @@ namespace CapaDatos
                                          "declare @HoraF varchar (20)= '" + h2 + "'; declare @dura float =" + dr + "; " +
                                         "If @dura<2 BEGIN Update Pro.ParBatch Set PBHorF=@HoraF, PBDura=@dura, " +
                                         "ECodEqu='" + CDVersion.Equip1 + "', TPCodPar = '018076',PBDet='Parada Autómatica', PBEsta=1 " +
-                                        "Where IdParBatch=(SELECT MAX(IdParBatch) FROM Pro.ParBatch Where PBEsta=0);" +
+                                        "Where IdParBatch=(SELECT MAX(IdParBatch) FROM Pro.ParBatch Where PBEsta=0 and BPIdBatchP=" + idbatch + ");" +
                                         " END Else BEGIN Update Pro.ParBatch Set PBHorF=@HoraF, PBDura=@dura, PBEsta=1 " +
-                                        "Where IdParBatch=(SELECT MAX(IdParBatch) FROM Pro.ParBatch Where PBEsta=0); END";
+                                        "Where IdParBatch=(SELECT MAX(IdParBatch) FROM Pro.ParBatch Where PBEsta=0 and BPIdBatchP=" + idbatch + "); END";
                 comando.CommandType = CommandType.Text;
                 comando.ExecuteNonQuery();
                 Conexion.CerrarConex();

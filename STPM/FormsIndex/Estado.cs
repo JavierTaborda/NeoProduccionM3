@@ -21,7 +21,7 @@ namespace STPM.FormsIndex
     {
         int intArdu = 0;
         string centro = CNOEE.CCentro;//El centro debe obtenerse automaticamente 
-                                 // int ParadaM; Variable para registrar la parada despues de un minuto
+                                      // int ParadaM; Variable para registrar la parada despues de un minuto
 
         //Calcular los tiemposen conjunto a los timers
         Stopwatch CronometroTT = new Stopwatch();
@@ -35,6 +35,7 @@ namespace STPM.FormsIndex
         //string puertoSeleccionar; variables para mostrar los puertos disponibles
         string datoArdu;//variable para guaradar el dato enviado por el arduino
         double min = 0; //Variable para verificar la duración minima de la parada. 
+        double min2 = 0; //Variable para verificar la duración minima ANTES DE ENTRAR EN PARADA. 
         double mintp = 0, segtp = 0;//mintp espera un minuto de estabilidad, y segtp evita que se inicie el cronometro tt y tp al mismo tiempo
 
         bool reset = false, inicio = true; //Para reiniciar el cronometro de espera (Last), e iniciar turno
@@ -53,25 +54,25 @@ namespace STPM.FormsIndex
             }
             spPuertoSerie.DataReceived += new SerialDataReceivedEventHandler(spPuertoSerie_DataReceived);*/
 
-            //COM6 //M3
-            //COM4 //M5
-            serialPort.BaudRate = 9600;
-            serialPort.PortName = "COM4";
+            ////COM6 //M3
+            ////COM4 //M5
+            //serialPort.BaudRate = 9600;
+            //serialPort.PortName = "COM4";
 
-            // Creamos el evento
-            serialPort.DataReceived += new SerialDataReceivedEventHandler(SerialPort_DataReceived);
+            //// Creamos el evento
+            //serialPort.DataReceived += new SerialDataReceivedEventHandler(SerialPort_DataReceived);
 
-            // Controlamos que el puerto indicado esté operativo
-            try
-            {
-                // Abrimos el puerto serie
-                serialPort.Close();
-                serialPort.Open();
-            }
-            catch
-            {
-
-            }
+            //// Controlamos que el puerto indicado esté operativo
+            //try
+            //{
+            //    // Abrimos el puerto serie
+            //    serialPort.Close();
+            //    serialPort.Open();
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show(ex.Message);
+            //}
 
         }
 
@@ -211,6 +212,7 @@ namespace STPM.FormsIndex
             //En caso de que changeimagenes haya quedado en 2
             mintp = tps.Minutes;
             segtp = tps.Seconds;
+            min2 = tps.Seconds;
             if (changeimage == 2)
             { changeimage = 0; }
 
@@ -266,32 +268,38 @@ namespace STPM.FormsIndex
         private void btnOn_Click(object sender, EventArgs e)
         {
 
-            /* try
-         {
+            //COM6 //M3
+            //COM4 //M5
+            serialPort.BaudRate = 9600;
+            serialPort.PortName = "COM6";
+            bool busyport = false; // notificar si esta abierto el puerto
+            // Creamos el evento
+            serialPort.DataReceived += new SerialDataReceivedEventHandler(SerialPort_DataReceived);
 
-             serialPort.WriteLine("a");
-        }
-        catch (Exception)
-        {
+            // Controlamos que el puerto indicado esté operativo
+            try
+            {
+                // Abrimos el puerto serie
+                if (serialPort.IsOpen)
+                {
+                    serialPort.Close();
+                    serialPort.Open();
 
-            MessageBox.Show("No se puede conectar al puerto");
-        }
+                }
+                else
+                {
+                    serialPort.Open();
+                    busyport = false;
 
-         try
-           {
-               if (!spPuertoSerie.IsOpen)
-               { spPuertoSerie.Open(); }
+                }
 
-               // MessageBox.Show("El puerto se abrió");
-           }
-           catch (Exception ex)
-           {
-               MessageBox.Show("Error: " + ex, "No hay ningun puerto disponible");
-           }*/
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                busyport = true;
+            }
 
-
-            // lbltt.Text = "00:00:00";
-            // lbltp.Text = "00:00:00";
 
             try//por si no hay conexion
             {
@@ -308,17 +316,28 @@ namespace STPM.FormsIndex
                 cboxpuertos.Enabled = false;
                 btnselec.Enabled = true;
 
+
                 DatosDelBatch();//Cargar datos de batch
-                InsertarBatch();//Insertar los datos al abrir turno 
+                InsertarBatch();//Insertar los datos al abrir turno                    
                 GuardarTiempo();//Guardar tiempos
+
                 lblhora.Text = DateTime.Now.ToString("HH:mm:ss ");
 
                 //Seleccionar turno
             }
-            catch
+            catch (Exception ex)
+
             {
-                MessageBox.Show("Error al iniciar el turno, intente nuevamente. Si el problema persiste de click en salir y reabra el programa en unos minutos.");
+                if (busyport == true)
+                {
+                    MessageBox.Show("El puerto USB está conectado con otra apertura del programa o el cable está desconectado, desconecte el usb y vuelva a conectar en el mismo puerto.");
+                }
+                else
+                {
+                    MessageBox.Show(ex.Message, "Envie el siguiente error para su solución. ");
+                }
             }
+
 
             if (lblid.Text != "")
             {
@@ -467,6 +486,19 @@ namespace STPM.FormsIndex
 
         //Tiempo Se coloca este codigo dentro del timer para que se ejecute en ese lapso d tiempo
 
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (intArdu == 1)
+            {
+                intArdu = 0;
+            }
+            else
+            {
+                intArdu = 1;
+            }
+
+        }
+
         private void timer1_Tick(object sender, EventArgs e)
         {
             //Cerrar turno aoutomat6icamente 
@@ -491,7 +523,7 @@ namespace STPM.FormsIndex
             int valhora = int.Parse(DateTime.Now.ToString("HHmmss"));
 
             //Invertido a partir de 22/06/2022: >0
-            if (intArdu <=0 && lblabierto.Text == "TURNO ABIERTO")
+            if (intArdu == 1 && lblabierto.Text == "TURNO ABIERTO")
             {
 
                 if (CronometroLast.IsRunning & CronometroTP.IsRunning & reset == true)
@@ -503,163 +535,165 @@ namespace STPM.FormsIndex
 
 
 
-                if (min >= 30 & mintp > 0)
+                //if (min >= 30)
 
+                //{
+
+                //si el cronommtro de tiempo perdido esta activado , este se detiene. 
+                if (CronometroTP.IsRunning)
                 {
-                    //MessageBox.Show("UNO");
-                    //si el cronommtro de tiempo perdido esta activado , este se detiene. 
-                    if (CronometroTP.IsRunning)
-                    {
-                        CronometroTP.Stop();
-                        timerlast.Stop();
-                        timertp.Stop();
-                        CronometroLast.Reset();
-                        EstadoParadas.FinalizarParada(int.Parse(lblid.Text));//Cerrar la última parada 
-
-                    }
-
-                    //Quitar el ! si no funciona
-
-                    if (!CronometroTT.IsRunning)
-                    {
-                        //MessageBox.Show("DOS");
-                        timertt.Enabled = true;
-                        timerlast.Enabled = true;
-                        CronometroTT.Start();
-                        timertt.Start();
-                        timerlast.Start();
-                        CronometroLast.Start();
-                        lbltitulo.Text = "Tiempo Sin Parada: ";
-                        lbltiempo.ForeColor = Color.LimeGreen; lbltt.ForeColor = Color.LimeGreen; lbltp.ForeColor = Color.DarkRed;
-                        lblreci.Text = "DATO: " + datoArdu;
-
-                    }
-                }
-                else
-                {
-                    if (!CronometroTT.IsRunning & inicio == true & segtp==0)
-                    {
-                        inicio = false;
-                        //MessageBox.Show("TRES");
-                        timertt.Enabled = true;
-                        timerlast.Enabled = true;
-                        CronometroTT.Start();
-                        timertt.Start();
-                        timerlast.Start();
-                        CronometroLast.Start();
-                        lbltitulo.Text = "Tiempo Sin Parada: ";
-                        lbltiempo.ForeColor = Color.LimeGreen; lbltt.ForeColor = Color.LimeGreen; lbltp.ForeColor = Color.DarkRed;
-                        lblreci.Text = "DATO: " + datoArdu;
-                    }
-
+                    CronometroTP.Stop();
+                    timerlast.Stop();
+                    timertp.Stop();
+                    CronometroLast.Reset();
+                    EstadoParadas.FinalizarParada(int.Parse(lblid.Text));//Cerrar la última parada 
 
                 }
 
+                //Quitar el ! si no funciona
 
+                if (!CronometroTT.IsRunning)
+                {
+                    //MessageBox.Show("DOS");
+                    timertt.Enabled = true;
+                    timerlast.Enabled = true;
+                    CronometroTT.Start();
+                    timertt.Start();
+                    timerlast.Start();
+                    CronometroLast.Start();
+                    lbltitulo.Text = "Tiempo Sin Parada: ";
+                    lbltiempo.ForeColor = Color.LimeGreen; lbltt.ForeColor = Color.LimeGreen; lbltp.ForeColor = Color.DarkRed;
+                    lblreci.Text = "DATO: " + datoArdu;
+
+                }
+            }
+            else
+            {
+                if (!CronometroTT.IsRunning & inicio == true & lblabierto.Text == "TURNO ABIERTO")
+                {
+                    inicio = false;
+                    //MessageBox.Show("TRES");
+                    timertt.Enabled = true;
+                    timerlast.Enabled = true;
+                    CronometroTT.Start();
+                    timertt.Start();
+                    timerlast.Start();
+                    CronometroLast.Start();
+                    lbltitulo.Text = "Tiempo Sin Parada: ";
+                    lbltiempo.ForeColor = Color.LimeGreen; lbltt.ForeColor = Color.LimeGreen; lbltp.ForeColor = Color.DarkRed;
+                    lblreci.Text = "DATO: " + datoArdu;
+                }
 
 
             }
 
-            
-            if (intArdu >0 && lblabierto.Text == "TURNO ABIERTO")
+
+
+
+            //}
+
+
+            if (intArdu == 0 && lblabierto.Text == "TURNO ABIERTO")
             {
 
                 if (!CronometroLast.IsRunning)
                 {
                     timerlast.Start(); CronometroLast.Start();
                 }
+                //si el cronometro de tiempo last esta  debe ser mayor a 15 seg para entrar en parada
 
-                //if (min >= 1)
+                if (min >= 15)
 
-                //{
-                if (CronometroTT.IsRunning)
                 {
-                    timerlast.Stop();
-                    CronometroTT.Stop();
-                    timertt.Stop();
-                    CronometroLast.Reset();
+                    if (CronometroTT.IsRunning)
+                    {
+                        timerlast.Start(); CronometroLast.Start();
+                        timerlast.Stop();
+                        CronometroTT.Stop();
+                        timertt.Stop();
+                        CronometroLast.Reset();
 
+                    }
+                    if (!CronometroTP.IsRunning)
+                    {
+
+                        timertp.Enabled = true;
+
+                        timerlast.Enabled = true;
+                        timertp.Start(); CronometroTP.Start(); timerlast.Start(); CronometroLast.Start();
+
+                        lbltitulo.Text = "Tiempo De Parada: ";
+                        lbltt.ForeColor = Color.FromArgb(5, 121, 84); lbltp.ForeColor = Color.Red; lbltiempo.ForeColor = Color.Red;
+
+
+                        EstadoParadas.InsertarParada(int.Parse(lblid.Text));//registra parada
+                        GuardarTiempo();//Atualizar datos del tiempo del batch 
+                        reset = true;
+
+                        //FormParadas();//Form para registrar las paradas
+                    }
                 }
-                if (!CronometroTP.IsRunning)
-                {
-
-                    timertp.Enabled = true;
-
-                    timerlast.Enabled = true;
-                    timertp.Start(); CronometroTP.Start(); timerlast.Start(); CronometroLast.Start();
-
-                    lbltitulo.Text = "Tiempo De Parada: ";
-                    lbltt.ForeColor = Color.FromArgb(5, 121, 84); lbltp.ForeColor = Color.Red; lbltiempo.ForeColor = Color.Red;
-
-
-                    EstadoParadas.InsertarParada(int.Parse(lblid.Text));//registra parada
-                    GuardarTiempo();//Atualizar datos del tiempo del batch 
-                    reset = true;
-
-                    //FormParadas();//Form para registrar las paradas
-                }
-                //}
 
 
             }
 
             //Cerrar turno aoutomat6icamente 
-           /* if (valhora > 175900 & lblabierto.Text == "TURNO ABIERTO" & lbturno.Text == "1")
-            {
+            /* if (valhora > 175900 & lblabierto.Text == "TURNO ABIERTO" & lbturno.Text == "1")
+             {
 
-                try
-                {
-                    //MessageBox.Show("Holaaa " + valhora);
+                 try
+                 {
+                     //MessageBox.Show("Holaaa " + valhora);
 
-                    //spPuertoSerie
-                    serialPort.WriteLine("b");
-                    //spPuertoSerie
-                    serialPort.Close();
-                }
-                catch
-                {
+                     //spPuertoSerie
+                     serialPort.WriteLine("b");
+                     //spPuertoSerie
+                     serialPort.Close();
+                 }
+                 catch
+                 {
 
-                }
-
-
-                try
-                {
-                    if (CronometroTP.IsRunning)
-                    {
-                        EstadoParadas.FinalizarParada();
-                    }
-
-                    CerrarTurno();
-
-                    //End Establecer Conexion con el puerto serial
-                    lblcerrado.Text = "TURNO CERRADO";
-                    lblabierto.Text = "-";
-                    timerlast.Stop(); timertt.Stop(); timertp.Stop(); timerT.Enabled = false; timerDBatch.Enabled = false;
-                    CronometroTP.Reset(); CronometroTT.Reset(); CronometroLast.Reset(); timertp.Enabled = false; timertt.Enabled = false;// timerlast.Enabled = false;CronometroLast.Reset();
-                    btnOn.Enabled = true;
-                    btnOff.Enabled = false;
-
-                    //Form Cierre = new Cierre(lblid.Text);
-                    // Cierre.Show();
-                    //MessageBox.Show("Hola");
-
-                }
-                catch
-                {
-                    MessageBox.Show("error");
-                }
-
-                // CerrarTurno();
+                 }
 
 
+                 try
+                 {
+                     if (CronometroTP.IsRunning)
+                     {
+                         EstadoParadas.FinalizarParada();
+                     }
+
+                     CerrarTurno();
+
+                     //End Establecer Conexion con el puerto serial
+                     lblcerrado.Text = "TURNO CERRADO";
+                     lblabierto.Text = "-";
+                     timerlast.Stop(); timertt.Stop(); timertp.Stop(); timerT.Enabled = false; timerDBatch.Enabled = false;
+                     CronometroTP.Reset(); CronometroTT.Reset(); CronometroLast.Reset(); timertp.Enabled = false; timertt.Enabled = false;// timerlast.Enabled = false;CronometroLast.Reset();
+                     btnOn.Enabled = true;
+                     btnOff.Enabled = false;
+
+                     //Form Cierre = new Cierre(lblid.Text);
+                     // Cierre.Show();
+                     //MessageBox.Show("Hola");
+
+                 }
+                 catch
+                 {
+                     MessageBox.Show("error");
+                 }
+
+                 // CerrarTurno();
 
 
-            }*/
+
+
+             }*/
 
         }//Probar
-        
+
         //METODO PARA GUARDAR EL TIEMPO PP Y TP,y DATOS DEL BATCH
-       
+
         //END METODO PARA GUARDAR EL TIEMPO PP Y TP
 
         private void btnselec_Click(object sender, EventArgs e)
@@ -669,7 +703,7 @@ namespace STPM.FormsIndex
 
         private void cboxpuertos_SelectedValueChanged(object sender, EventArgs e)
         {
-            
+
             cboxpuertos.Enabled = false;
         }
 
@@ -678,9 +712,10 @@ namespace STPM.FormsIndex
 
         }
 
+
         private void btnparadas_Click(object sender, EventArgs e)
         {
-            if (lblabierto.Text=="TURNO ABIERTO")
+            if (lblabierto.Text == "TURNO ABIERTO")
             {
                 FormParadas();
             }
@@ -688,20 +723,20 @@ namespace STPM.FormsIndex
             {
                 MessageBox.Show("Debe abrir un turno primero.");
             }
-            
-            
+
+
 
 
         }
 
-       
+
 
         private void btnSalir_Click(object sender, EventArgs e)
         {
-            if (lblabierto.Text !="TURNO ABIERTO")
+            if (lblabierto.Text != "TURNO ABIERTO")
             {
                 DialogResult result = MessageBox.Show("¿Desea  salir del programa?", "Salir", MessageBoxButtons.YesNoCancel);
-                
+
                 if (result == DialogResult.Yes)
                 {
 
@@ -710,11 +745,11 @@ namespace STPM.FormsIndex
                     proc[0].Kill();
                     proc[0].WaitForExit();
                 }
-                
+
             }
             else
             {
-                MessageBox.Show("No puede salir con un turno en curso","Advertencia");
+                MessageBox.Show("No puede salir con un turno en curso", "Advertencia");
             }
         }
 

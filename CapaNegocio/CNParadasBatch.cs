@@ -18,7 +18,7 @@ namespace CapaNegocio
         private CDParadasBatch objetoCD = new CDParadasBatch();
         string CCentro = CDVersion.CCentro;//Constante para asignar el molino
         public static string Equip1 { get; set; } = ""; //Parada automatica
-        public static string Equip2 { get; set; } = "855-213 "; //Cambio de Crepe
+        public static string Equip2 { get; set; } = CDVersion.Equip2; //Cambio de Crepe
         public static string HoraIn { get; set; }
         public static string HoraFn { get; set; }
         public static string Hre { get; set; }
@@ -139,7 +139,7 @@ namespace CapaNegocio
                 // double dura = (DateTime.Parse(hf)-DateTime.Parse(hi)).TotalMinutes;// Obtener los minutos de diferencia entre las horas.
                 double dura = DateTime.Parse(hf).Subtract(DateTime.Parse(hi)).TotalMinutes;
                 string dur = Convert.ToString(string.Format("{0:0.000}", dura));// se convietrte a string en formado con tres decimales 
-                objetoCD.Cerrar(hf, dur);
+                objetoCD.Cerrar(hf, dur, idbatch);
             }
             catch (System.Exception ex)
             {
